@@ -3,9 +3,9 @@
  */
 .site-header {
     border-top: 0px solid $grey-color-dark;
-	border-bottom: 4px solid $clemson-purple;
+	border-bottom: 4px solid $ucla-gold;
     min-height: 56px;
-    background: #f66733;
+    background: #3284bf;
     // Positioning context for the mobile navigation icon
     position: relative;
 
@@ -82,23 +82,23 @@
 	letter-spacing: 0;
 	line-height: 1.2em;
 	padding: 4px 10px;
-color: #522d80;
+color: #ffe800;
 
 }
 
 .site-nav .sub-menu a:hover {
-	color: $clemson-orange;
+	color: $ucla-blue;
 }
 .site-nav  .sub-menu {
 	background: #ffffff;
-	border-color: $clemson-purple;
+	border-color: $ucla-gold;
 	min-width: 265px;
 
 	z-index:2147483647;
 }
 .site-nav .sub-menu li.current-menu-item > a {
-	border-left-color: $clemson-orange;
-	border-right-color: $clemson-orange;
+	border-left-color: $ucla-blue;
+	border-right-color: $ucla-blue;
 	border-right: 0px;
 
 }
@@ -157,7 +157,7 @@ z-index:999;
 
     .page-link {
         color: #ffffff;
-    background: $clemson-orange;
+    background: $ucla-blue;
         line-height: $base-line-height;
 
         // Gaps between nav items, but not on the first one
@@ -212,5 +212,3 @@ z-index:999;
         }
     }
 }
-
-
