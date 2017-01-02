@@ -22,6 +22,8 @@ GEM
       jekyll (~> 3.3)
     jekyll-sass-converter (1.5.0)
       sass (~> 3.4)
+    jekyll-sitemap (0.12.0)
+      jekyll (~> 3.3)
     jekyll-watch (1.5.0)
       listen (~> 3.0, < 3.1)
     kramdown (1.13.1)
@@ -34,7 +36,7 @@ GEM
       jekyll (~> 3.3)
     pathutil (0.14.0)
       forwardable-extended (~> 2.6)
-    public_suffix (2.0.4)
+    public_suffix (2.0.5)
     rb-fsevent (0.9.8)
     rb-inotify (0.9.7)
       ffi (>= 0.5.0)
@@ -49,6 +51,7 @@ PLATFORMS
 DEPENDENCIES
   jekyll (= 3.3.1)
   jekyll-feed (~> 0.6)
+  jekyll-sitemap
   minima (~> 2.0)
 
 RUBY VERSION
