@@ -64,7 +64,7 @@
 		display: block;
 		font-family: 'Titillium Web', Helvetica, Arial, Verdana, sans-serif;
 		position: relative;
-		min-width: 215px;
+		min-width: 100px;
 		max-width: 215px;
 		top: auto;
 		text-transform: uppercase;
@@ -78,10 +78,6 @@
 
 	.site-nav .sub-menu li.current-menu-item > a {
 		border: 0;
-	}
-
-	.site-nav li.icon  {
-		display: none;
 	}
 
 }
