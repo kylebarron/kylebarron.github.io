@@ -1,0 +1,74 @@
+==================================================================
+https://keybase.io/kylebarron
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://kylebarron.github.io
+  * I am kylebarron (https://keybase.io/kylebarron) on keybase.
+  * I have a public key with fingerprint 8AE7 20E6 5E4A BE32 7004  32BD 4E42 1C70 00D0 AAB2
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "0101cfe8e56799ca142a12a4cf2a5f850296e252e7817ecafd1869fea9887db221b50a",
+            "fingerprint": "8ae720e65e4abe32700432bd4e421c7000d0aab2",
+            "host": "keybase.io",
+            "key_id": "4e421c7000d0aab2",
+            "kid": "0101cfe8e56799ca142a12a4cf2a5f850296e252e7817ecafd1869fea9887db221b50a",
+            "uid": "05564257871fe4c2a25c4d09dd74fd19",
+            "username": "kylebarron"
+        },
+        "revoke": {
+            "sig_ids": [
+                "f975be22ca2e2025741b589a018ac866938bffe665915f068ef7d44060adcee80f"
+            ]
+        },
+        "service": {
+            "hostname": "kylebarron.github.io",
+            "protocol": "https:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1485243553,
+    "expire_in": 157680000,
+    "prev": "589743baa6bb0a36a693f39559c3e18ebf36b6cffe7973dcb2acc8ebb0531303",
+    "seqno": 13,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.0.62
+Comment: https://keybase.io/crypto
+
+yMJpAnicrVJ/aFVVHL/Lba6FOSQYr1jZSVNhzXPOPeeec9/63T9BxaAQTZ1v55z7
+vW+Xt9593nu3XKKRBrMfUv2jhAYJawUq6D9ziRMVh38Ems9gEEJRsLDSBIcQaevc
+WX/Vn/11OIfPz+/3nF20wGlteHp7k6h0FFY2fHX6z0Fn3Ujjga1Ix8EwKm5FFZg/
+YCCANCtVogAVESaYmBAkcE/4vlGEUUWoYiakioeSY+p7QDkFIYkAo8KASM8PQflS
+ikBTSjTHCnWiMKqWIaklUTWzslKBoBg8DkxpcKnAmLlUBwwYJcbecICV0tQS++M0
+Z9hwWqXQFcX2zV5K8/H+A/8/5x68I8e5xygXUpAQmKGKcsMC7AeBYJbq58AUkqp6
+DfKswwOgVZLEVbStEyUwFFcgn2walW3sFBU3oNAXXAOlRlGg2Cozayh9hYlURnqe
+70odhuB53Cc8xJ6EUASMYQ+rwABIHKJeq209hyIzL57P6V/+XeUo6x/Ud6ZWS+Is
+NvGARfRnWS0t5umy4VpOeR106W+xko6qgd2WZQxBkka2RZFYpMmiXJ0wySlzOXc7
+EWypRQmUohzBhSftHnDuA0NW0tYRzNVKeVpj5XrKlgpdn3PfuEAk6ND1tGdsS+EL
+NzCaKmPss8bcJS52UV5vczW22tYqU2WraSdYVdlgAmjbmVMbG52GVqe56a78Gzut
+d7f987kxtDhjonn7D+3fvFR5y/luvzOz49CxXU92TzPU83jLH/fO1OX4ew0r97Cb
+had6li6+qMqju3uWT6NfTr76+0+PFl5ef7pwhU4dXtYyMl6YXNJ+wOmbG50buXZw
+Y8fOmaP3jzTu/+z9yTMl8swiOfGGf09vYe+tsQub3p06MRFNXG0bfXD6UN9jj3x/
+/usLDzd/fnPHc4trccFfumH80rGuZ8eCsQ9u77qx74VLm+fWNrpHXuxs/6J+ZO3M
+pl9Xb6k+dPmBBfV9C2/Xr37y8ZIVk8t/XrHu7dlz1zvq/AnyJWqbuj67u+nWb6/c
+9+Myfa7cPfvOqitpx57Ktb3n+57/cFIdd7u/XdPy0c7Kp5d737zxF+XJWLs=
+=s5Ei
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/kylebarron
+
+==================================================================
