@@ -4,8 +4,7 @@ title: Blog
 permalink: /blog/
 ---
 
-I'll be posting some short data-related projects here, as well as possibly some more random musings.
-This page will likely see more development in April, since I'll have some free time after graduating. 
+
 
 <ul class="listing">
 {% for post in site.posts %}

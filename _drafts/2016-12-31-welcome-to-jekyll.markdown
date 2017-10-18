@@ -24,3 +24,8 @@ Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most ou
 [jekyll-docs]: http://jekyllrb.com/docs/home
 [jekyll-gh]:   https://github.com/jekyll/jekyll
 [jekyll-talk]: https://talk.jekyllrb.com/
+
+
+TODO: Edit this markdown language package 
+    1) between {% highlight ruby %} and {% endhighlight %} use 'include': '#source.ruby' for example
+    2) for links, edit link to work with more than one space: [...]: d [...]:  d 
