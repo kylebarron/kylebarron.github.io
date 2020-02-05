@@ -7,5 +7,7 @@ deploy:
   provider: script
   script: yarn install && yarn run deploy
   skip_cleanup: true
+  # I use 'source' instead of 'master' as the default working branch because
+  # 'master' is where Github Pages needs the built site to live for a user site
   on:
-    branch: master
+    branch: source
