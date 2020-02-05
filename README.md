@@ -1,32 +1,19 @@
-<p align="center">
-  <a href="https://minimal-blog.lekoarts.de">
-    <img alt="LekoArts" src="https://img.lekoarts.de/gatsby/gatsby-site-illustration.png" />
-  </a>
-</p>
 <h1 align="center">
-  Gatsby Starter: Minimal Blog
+  kylebarron.github.io
 </h1>
 
-<p align="center">
-  <a href="https://github.com/LekoArts/gatsby-starter-minimal-blog/blob/master/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="Minimal Blog is released under the MIT license." />
-  </a>
-  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome!" />
-  <a href="https://twitter.com/intent/follow?screen_name=lekoarts_de">
-    <img src="https://img.shields.io/twitter/follow/lekoarts_de.svg?label=Follow%20@lekoarts_de" alt="Follow @lekoarts_de" />
-  </a>
-  <a href="https://app.netlify.com/sites/minimal-blog/deploys">
-    <img src="https://api.netlify.com/api/v1/badges/f466015c-14f4-440d-a92b-0b0e30de609a/deploy-status" alt="Netlify Status" />
-  </a>
-</p>
+This is the Github repository for my website, [kylebarron.github.io](kylebarron.github.io)/[kylebarron.dev](kylebarron.dev).
 
-Typography driven, feature-rich blogging theme with minimal aesthetics. Includes tags/categories support and extensive features for code blocks such as live preview, line numbers, and line highlighting. Using the Gatsby Theme [`@lekoarts/gatsby-theme-minimal-blog`](https://github.com/LekoArts/gatsby-themes/tree/master/themes/gatsby-theme-minimal-blog).
+I use GatsbyJS as the static site generator, because it allows for doing lots of cool things in the future, like interweaving React and Markdown with [MDX](https://mdxjs.com/).
 
-[**Demo Website**](https://minimal-blog.lekoarts.de)
+This site started from the [`gatsby-starter-minimal-blog`](https://www.gatsbyjs.org/starters/LekoArts/gatsby-starter-minimal-blog/) starter, which implements the
+[`@lekoarts/gatsby-theme-minimal-blog`](https://github.com/LekoArts/gatsby-themes/tree/master/themes/gatsby-theme-minimal-blog)
+Gatsby theme. This means that the default style can be overridden bit by bit by
+_shadowing_ (overwriting) individual files from the theme.
 
-Also be sure to checkout other [Free & Open Source Gatsby Themes](https://themes.lekoarts.de)
+Typography driven, feature-rich blogging theme with minimal aesthetics. Includes tags/categories support and extensive features for code blocks such as live preview, line numbers, and line highlighting.
 
-## ✨ Features
+## Theme Features
 
 - MDX
 - Fully customizable through the usage of Gatsby Themes (and Theme UI)
@@ -39,38 +26,40 @@ Also be sure to checkout other [Free & Open Source Gatsby Themes](https://themes
 - SEO (Sitemap, OpenGraph tags, Twitter tags)
 - Offline Support & WebApp Manifest
 
-## 🚀 Getting Started
+## Developing
 
-1. **Create a Gatsby site.**
+Fork the repository, then clone it
+```bash
+git clone git@github.com:kylebarron/kylebarron.github.io.git
+cd kylebarron.github.io
 
-Use the Gatsby CLI to create a new site, specifying this project
+# install dependencies
+yarn
 
-```sh
-gatsby new project-name https://github.com/LekoArts/gatsby-starter-minimal-blog
-```
-
-2. **Start developing.**
-
-Navigate into your new site's directory and start it up.
-
-```sh
-cd project-name
+# start hot-reloading server
 gatsby develop
 ```
+After `gatsby develop`, the site is now running by default on `http://localhost:8000`. 
 
-3. **Open the code and start customizing!**
+### Modifying the theme
 
-Your site is now running at `http://localhost:8000`!
+The base theme is installed as an NPM dependency. To overwrite parts of the theme, you use Gatsby _shadowing_ (Guide: [Shadowing in Gatsby Themes](https://www.gatsbyjs.org/docs/themes/shadowing/)).
 
-If you want to learn more about how you can use a Gatsby starter that is configured with a Gatsby theme, you can checkout this [shorter](https://www.gatsbyjs.org/docs/themes/using-a-gatsby-theme/) or [longer](https://www.gatsbyjs.org/tutorial/using-a-theme/) tutorial. The tutorials don't exactly apply to this starter however the concepts are the same.
+To overwrite parts of the theme, add files in this repository at 
+```
+src/@lekoarts/gatsby-theme-minimal-blog/
+```
+that take effect instead of the default files from the theme.
 
-## 📝 Using and modifying this starter
+So for example, to replace the "hero" text that shows up at the front of the homepage, add the file:
+```
+src/@lekoarts/gatsby-theme-minimal-blog/texts/hero.mdx
+```
+overriding the [original hero.mdx
+file](https://github.com/LekoArts/gatsby-themes/blob/master/themes/gatsby-theme-minimal-blog/src/texts/hero.mdx)
+from the theme.
 
-**Important Note:** Please read the guide [Shadowing in Gatsby Themes](https://www.gatsbyjs.org/docs/themes/shadowing/) to understand how to customize the underlying theme!
-
-This starter creates a new Gatsby site that installs and configures the theme [`@lekoarts/gatsby-theme-minimal-blog`](https://github.com/LekoArts/gatsby-themes/tree/master/themes/gatsby-theme-minimal-blog).
-
-Have a look at the theme's README and files to see what options are available and how you can shadow the various components including Theme UI. Generally speaking you will want to place your files into `src/@lekoarts/gatsby-theme-minimal-blog/` to shadow/override files. The Theme UI config can be configured by shadowing its files in `src/gatsby-plugin-theme-ui/`.
+The Theme UI config can be configured by shadowing its files in `src/gatsby-plugin-theme-ui/`.
 
 ### Code Highlighting
 
@@ -213,16 +202,7 @@ Looking for more guidance? Full documentation for Gatsby lives [on Gatsby's webs
 
 - To learn more about Gatsby themes specifically, we recommend checking out the [theme docs](https://www.gatsbyjs.org/docs/themes/).
 
-### General
 
-- **For most developers, I recommend starting with the [in-depth tutorial for creating a site with Gatsby](https://www.gatsbyjs.org/tutorial/).** It starts with zero assumptions about your level of ability and walks through every step of the process.
+## Miscellaneous
 
-- **To dive straight into code samples, head [to Gatsby's documentation](https://www.gatsbyjs.org/docs/).** In particular, check out the _Reference Guides_ and _Gatsby API_ sections in the sidebar.
-
-## 🌟 Supporting me
-
-Thanks for using this project! I'm always interested in seeing what people do with my projects, so don't hesitate to tag me on [Twitter](https://twitter.com/lekoarts_de) and share the project with me.
-
-Please star this project, share it on Social Media or consider supporting me on [Patreon](https://www.patreon.com/lekoarts)!
-
-If you want to hire me for **contract/freelance work**, you can do so! [Get in touch with me!](https://www.lekoarts.de/en/contact)
+The old Jekyll-based <kylebarron.github.io> is on the [Jekyll branch](https://github.com/kylebarron/kylebarron.github.io/tree/jekyll).
