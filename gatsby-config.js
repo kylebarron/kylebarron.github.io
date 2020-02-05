@@ -8,11 +8,12 @@ module.exports = {
   siteMetadata: {
     siteTitle: "Kyle Barron",
     siteTitleAlt: "Kyle Barron",
-    // siteHeadline: string
+    siteHeadline: "Kyle Barron",
     siteUrl: "https://kylebarron.dev",
-    // siteDescription: string
+    siteDescription: "Kyle Barron",
     siteLanguage: "en",
-    // siteImage: string
+    author: "Kyle Barron",
+    // siteImage: "static/banner.jpg"
   },
   plugins: [
     {
@@ -22,6 +23,10 @@ module.exports = {
           {
             title: `Blog`,
             slug: `/blog`,
+          },
+          {
+            title: `Projects`,
+            slug: `/projects`,
           },
           {
             title: `About`,
