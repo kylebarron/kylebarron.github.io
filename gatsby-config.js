@@ -1,10 +1,18 @@
 require(`dotenv`).config({
   path: `.env`,
-})
+});
 
 module.exports = {
+  // siteMetadata is generally used for SEO; see
+  // https://github.com/LekoArts/gatsby-themes/blob/master/themes/gatsby-theme-minimal-blog/src/components/seo.tsx
   siteMetadata: {
-    siteTitleAlt: `Kyle Barron`,
+    siteTitle: "Kyle Barron",
+    siteTitleAlt: "Kyle Barron",
+    // siteHeadline: string
+    siteUrl: "https://kylebarron.dev",
+    // siteDescription: string
+    siteLanguage: "en",
+    // siteImage: string
   },
   plugins: [
     {
@@ -22,8 +30,8 @@ module.exports = {
         ],
         externalLinks: [
           {
-            name: 'Github',
-            url: 'https://github.com/kylebarron',
+            name: "Github",
+            url: "https://github.com/kylebarron",
           },
         ],
       },
@@ -63,4 +71,4 @@ module.exports = {
     `gatsby-plugin-netlify`,
     // `gatsby-plugin-webpack-bundle-analyser-v2`,
   ],
-}
+};
