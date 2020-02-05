@@ -9,7 +9,7 @@
   <img src="https://travis-ci.org/kylebarron/kylebarron.github.io.svg?branch=master" alt="Travis CI status" />
 </p>
 
-This is the Github repository for my website, [kylebarron.github.io](kylebarron.github.io)/[kylebarron.dev](kylebarron.dev).
+This is the Github repository for my website, [kylebarron.github.io](https://kylebarron.github.io)/[kylebarron.dev](https://kylebarron.dev).
 
 I use GatsbyJS as the static site generator, because it allows for doing lots of cool things in the future, like interweaving React and Markdown with [MDX](https://mdxjs.com/).
 
