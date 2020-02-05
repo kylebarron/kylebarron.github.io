@@ -17,6 +17,10 @@
     "test": "echo 'No test script yet'"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.27",
+    "@fortawesome/free-brands-svg-icons": "^5.12.1",
+    "@fortawesome/free-solid-svg-icons": "^5.12.1",
+    "@fortawesome/react-fontawesome": "^0.1.8",
     "@lekoarts/gatsby-theme-minimal-blog": "^2.0.1",
     "@theme-ui/components": "^0.3.1",
     "gatsby": "^2.13.3",

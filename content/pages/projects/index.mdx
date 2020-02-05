@@ -3,6 +3,14 @@ title: Projects
 slug: "/projects"
 ---
 
+import GithubLink from "../../../src/components/GithubLink";
+
+I love to explore and build new things. I've recently been focused on projects
+to support reproducible web-based mapping. The source for nearly all my projects
+is available at [Github](https://github.com/kylebarron).
+
+### Mapping
+
 #### [National Scenic Trails Guide](projects/nst-guide)
 
 Hello world
@@ -11,5 +19,54 @@ Hello world
 
 Hello world
 
+#### `demquery`
 
+#### `keplergl_quickvis`
 
+<GithubLink
+  languages={["py"]}
+  href="https://github.com/kylebarron/keplergl_quickvis"
+/>
+
+Python library and command line interface to quickly, interactively visualize
+geospatial data with [Kepler.gl](https://kepler.gl/). Since I work with GIS data
+in Python, I use this whenever I need to see my data on a map.
+
+### Jupyter
+
+#### Hydrogen
+
+The Hydrogen project.
+I [contributed code](https://github.com/nteract/hydrogen/commits?author=kylebarron) that allowed Jupyter Notebook files to be imported and exported as regular Python files.
+
+### Stata
+
+While working as a research assistant for an economist, I built a number of
+open-source tools that interface with the [Stata statistical
+package](https://stata.com) to improve research reproducibility and increase
+productivity.
+
+#### Stata Jupyter Kernel
+
+<GithubLink
+  languages={["py"]}
+  href="https://github.com/kylebarron/stata_kernel"
+/>
+
+Connects Stata to the [Jupyter](https://jupyter.org/) ecosystem, enabling researchers to use a modern data science toolkit with Stata.
+
+Jupyter Notebooks permit sharing of code and results together, with simple
+reproducible modifications in a web-based computational environment. Alternative
+front ends like [Hydrogen](https://github.com/nteract/hydrogen) allow for rich
+HTML output even from computations on a remote server.
+
+As of February 2020, it has been downloaded [nearly 90,000 times](https://pepy.tech/project/stata-kernel).
+
+#### `language-stata`
+
+<GithubLink
+  languages={["py"]}
+  href="https://github.com/kylebarron/language-stata"
+/>
+
+Syntax highlighting for Stata for the [Atom text editor](https://atom.io).
