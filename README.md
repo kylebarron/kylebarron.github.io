@@ -18,8 +18,6 @@ This site started from the [`gatsby-starter-minimal-blog`](https://www.gatsbyjs.
 Gatsby theme. This means that the default style can be overridden bit by bit by
 _shadowing_ (overwriting) individual files from the theme.
 
-Typography driven, feature-rich blogging theme with minimal aesthetics. Includes tags/categories support and extensive features for code blocks such as live preview, line numbers, and line highlighting.
-
 ## Theme Features
 
 - MDX
@@ -34,6 +32,13 @@ Typography driven, feature-rich blogging theme with minimal aesthetics. Includes
 - Offline Support & WebApp Manifest
 
 ## Developing
+
+**Note**: The central branch for development is _source_ not _master_, because
+Github will only build a top-level user page from the `master` branch, and won't
+let me build it from the `gh-pages` branch. So I use `source` in place of
+`master`, and `master` in place of `gh-pages`. Travis CI builds the site to
+`master` automatically. Any pull request should be taken towards the `source`
+branch.
 
 Fork the repository, then clone it
 ```bash
