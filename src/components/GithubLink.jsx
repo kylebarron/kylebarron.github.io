@@ -43,9 +43,9 @@ export default function GithubLink(props) {
 function LanguageDot(props) {
   const { width = 12, color = '#cccccc' } = props;
   return (
-    <svg width={width} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <svg width={width} viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
       <g color={color}>
-        <circle fill="currentColor" cx="50" cy="50" r="50" />
+        <circle fill="currentColor" cx="5" cy="5" r="5" />
       </g>
     </svg>
   );
