@@ -36,8 +36,17 @@ in Python, I use this whenever I need to see my data on a map.
 
 ##### Hydrogen
 
-The Hydrogen project.
-I [contributed code](https://github.com/nteract/hydrogen/commits?author=kylebarron) that allowed Jupyter Notebook files to be imported and exported as regular Python files.
+<GithubLink
+  languages={["js"]}
+  href="https://github.com/nteract/hydrogen"
+/>
+
+The Hydrogen project is a front-end for the [Jupyter](https://jupyter.org)
+project, enabling interactive coding and rich output formats inside the Atom
+text editor. I [contributed
+code](https://github.com/nteract/hydrogen/commits?author=kylebarron) that
+allowed Jupyter Notebook files to be imported and exported as regular Python
+files.
 
 <Title text="Stata"/>
 
@@ -57,10 +66,20 @@ Connects Stata to the [Jupyter](https://jupyter.org/) ecosystem, enabling resear
 
 Jupyter Notebooks permit sharing of code and results together, with simple
 reproducible modifications in a web-based computational environment. Alternative
-front ends like [Hydrogen](https://github.com/nteract/hydrogen) allow for rich
+front-ends like [Hydrogen](https://github.com/nteract/hydrogen) allow for rich
 HTML output even from computations on a remote server.
 
 As of February 2020, it has been downloaded [nearly 90,000 times](https://pepy.tech/project/stata-kernel).
+
+##### `stata-exec`
+
+<GithubLink
+  languages={["js"]}
+  href="https://github.com/kylebarron/stata-exec"
+/>
+
+Send code to the Stata window from the Atom text editor. This is a more
+primitive version of running Stata code from Atom than the Jupyter kernel above.
 
 ##### `language-stata`
 
@@ -70,3 +89,37 @@ As of February 2020, it has been downloaded [nearly 90,000 times](https://pepy.t
 />
 
 Syntax highlighting for Stata for the [Atom text editor](https://atom.io).
+
+##### `stataParquet`
+
+<GithubLink
+  languages={["java"]}
+  href="https://github.com/kylebarron/stataParquet"
+/>
+
+A prototype Java implementation of reading [Parquet
+files](https://parquet.apache.org/) into Stata. My first Java project, I was
+able to successfully read Parquet files into Stata's memory, but it ended up
+being less performant than my friend Mauricio Caceres' [C++
+implementation](https://github.com/mcaceresb/stata-parquet).
+
+<Title text="Miscellaneous" />
+
+##### `medicare-documentation`
+
+<GithubLink
+  languages={["py"]}
+  href="https://github.com/kylebarron/medicare-documentation/"
+/>
+
+While working with Medicare data, I was frustrated with the fragmented state of public documentation regarding the data I was working with.
+
+I
+[scraped](https://github.com/kylebarron/medicare-documentation/blob/master/code/02parse.py)
+the [ResDAC documentation website](https://www.resdac.org/) and joined it with
+[public NBER documentation](https://data.nber.org/medicare/) to create my own
+beautiful, responsive [documentation
+website](https://kylebarron.dev/medicare-documentation) to help me search
+documentation faster. I used [MkDocs](https://www.mkdocs.org/) as the static
+site generator and [Material for
+MkDocs](https://squidfunk.github.io/mkdocs-material/) as the theming.

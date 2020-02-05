@@ -13,6 +13,13 @@ const LANGUAGES = {
     color: "#f1e05a",
     name: "JavaScript",
   },
+  stata: {
+    name: "Stata",
+  },
+  java: {
+    color: "#b07219",
+    name: "Java",
+  }
 };
 
 export default function GithubLink(props) {
@@ -34,7 +41,7 @@ export default function GithubLink(props) {
 }
 
 function LanguageDot(props) {
-  const { width = 12, color } = props;
+  const { width = 12, color = '#cccccc' } = props;
   return (
     <svg width={width} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <g color={color}>
