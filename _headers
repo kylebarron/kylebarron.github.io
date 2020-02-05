@@ -82,7 +82,7 @@
   Link: </styles-2c3ea41ae3281f2424df.js>; rel=preload; as=script
   Link: </commons-d36048cea8bb1ac5e5e2.js>; rel=preload; as=script
   Link: </component---node-modules-lekoarts-gatsby-theme-minimal-blog-core-src-templates-post-query-tsx-442ae93d3e18fdd77f53.js>; rel=preload; as=script
-/about
+/resume
   Link: </webpack-runtime-916807fa64d3a64686e7.js>; rel=preload; as=script
   Link: </commons-d36048cea8bb1ac5e5e2.js>; rel=preload; as=script
   Link: </app-a7b4c55fcfd19283ddda.js>; rel=preload; as=script
@@ -90,6 +90,13 @@
   Link: </commons-d36048cea8bb1ac5e5e2.js>; rel=preload; as=script
   Link: </component---node-modules-lekoarts-gatsby-theme-minimal-blog-core-src-templates-page-query-tsx-a8a7539244e28cc6015b.js>; rel=preload; as=script
 /projects
+  Link: </webpack-runtime-916807fa64d3a64686e7.js>; rel=preload; as=script
+  Link: </commons-d36048cea8bb1ac5e5e2.js>; rel=preload; as=script
+  Link: </app-a7b4c55fcfd19283ddda.js>; rel=preload; as=script
+  Link: </styles-2c3ea41ae3281f2424df.js>; rel=preload; as=script
+  Link: </commons-d36048cea8bb1ac5e5e2.js>; rel=preload; as=script
+  Link: </component---node-modules-lekoarts-gatsby-theme-minimal-blog-core-src-templates-page-query-tsx-a8a7539244e28cc6015b.js>; rel=preload; as=script
+/about
   Link: </webpack-runtime-916807fa64d3a64686e7.js>; rel=preload; as=script
   Link: </commons-d36048cea8bb1ac5e5e2.js>; rel=preload; as=script
   Link: </app-a7b4c55fcfd19283ddda.js>; rel=preload; as=script
