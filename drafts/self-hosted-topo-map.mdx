@@ -1,0 +1,172 @@
+---
+layout: post
+title:  "Self hosted vector topographic maps with OpenMapTiles"
+date:   2016-12-31 21:46:42 -0500
+---
+
+## Self hosted topographic vector maps with OpenMapTiles
+
+There are two types of map tiles: raster and vector. Akin to PNG vs SVG images, vector map tiles usually have smaller file sizes and don't have pixelation as you zoom.
+
+[Switch2OSM][switch2osm] has some helpful notes for using OSM data, but it only mentions raster tiles, and it doesn't mention hosting maps on a static host such as S3.
+
+If you need constantly updated maps, S3 might not be for you, but for my use case, I'm fine with updating the OSM map tiles a couple times a year.
+
+Vector tile benefits:
+
+- smaller file sizes
+- completely static backend; all rendering happens on the client
+-
+
+[switch2osm]: https://switch2osm.org/
+
+### Overview
+
+For this example, I'll only generate map tiles for the US state of New Hampshire,
+
+1. Set up AWS S3 to serve map tiles. Note that it's ok if a domain name you want has already been taken as a bucket, because you could host the website itself somewhere else, and just host the map tiles on S3.
+2. Generate map layers
+    - Use OpenMapTiles to generate vector map tiles (TODO: how is the OpenMapTiles schema different from the Mapbox schema? Why can't they just be interchanged?)
+    - Generate terrain-rgb compliant tiles for client-side hillshading
+    - Generate contour lines from USGS contours
+3. Upload the map data to S3
+4. Style your map
+5. Put it on a web map with Mapbox GL JS
+
+
+### OpenMapTiles
+
+The [OpenMapTiles][openmaptiles] project provides ready-to-use scripts to create
+map tiles for a geographic area. Hard to create global tiles, but for a portion
+of the US, it works well on a 2019 8-core MacbookPro.
+
+The project works by encoding OSM vector data into portions of the tiles. Since
+the minute details of roads and trails are unnecessary when zoomed out, features
+are simplified at low zooms, and some features aren't included until a specific
+zoom is met.
+
+I found that for a topographic map, OpenMapTiles doesn't include trails and
+streams in the vector tiles at my desired zoom level, so I've forked the project
+and set streams to appear at zoom XX and trails to appear at zoom XX.
+
+If you don't want these changes, just clone the `openmaptiles/openmaptiles` repo instead.
+```
+git clone https://github.com/nst-guide/openmaptiles
+cd openmaptiles
+```
+Then download the docker images:
+```
+docker-compose pull
+```
+Edit `QUICKSTART_MAX_ZOOM` in `.env` to your desired highest zoom level. I've
+found that this is only correctly set when the extract is downloaded again from
+Geofabrik. If the extract already exists, this doesn't appear to get set.
+
+It's usually a good idea to set a small zoom at first to make sure that
+everything is working, and only then increase the zoom to a higher level for
+production. Zoom 14 or 15 is usually a good max level.
+
+Then run `./quickstart.sh {region}` for any given Geofabrik region. This
+downloads the OSM extract from Geofabrik, imports the data into a Postgres
+database, and then writes output to an Mbtiles file according to the
+OpenMapTiles schema. For this example with New Hampshire, run:
+```
+./quickstart.sh new-hampshire
+```
+
+Notes when merging multiple Geofabrik regions:
+
+- any Mbtiles file in the `data/` directory is removed each time `./quickstart.sh` is run. So if you want to merge two states, you should do:
+
+    (TODO I forget the name of the output mbtiles file)
+
+    ```
+    ./quickstart.sh new-hampshire
+    mv data/*.mbtiles ./
+    ./quickstart.sh vermont
+    tile-join combined.mbtiles data/*.mbtiles *.mbtiles
+    ```
+
+[openmaptiles]
+
+
+### Contours
+
+Contour lines (isobands) are essential for a topographic map. They show equal
+heights on the land. The US Geological Survey releases [1x1 degree 40' contour
+line data][contours] generated from their 1/3 arc-second seamless DEM. While
+it's possible to generate contours yourself from a Digital Elevation Model,
+using the USGS's contours are easy because they're already in vector format. In
+order to integrate this data with OpenMapTiles, I need to cut the contour lines
+into vector tiles, and then add them as a separate source in my `style.json`
+file.
+
+I've written scripts to query the USGS API and download contours for a given bounding box.
+
+
+```
+git clone https://github.com/nst-guide/contours
+cd contours
+pip install click requests
+```
+
+This also has dependencies on GDAL and
+[`tippecanoe`](https://github.com/mapbox/tippecanoe). I find that the easiest
+way of installing GDAL and tippecanoe is through Conda:
+```
+conda create -n contours python gdal tippecanoe -c conda-forge
+source activate contours
+pip install click requests
+```
+
+#### Download files
+
+I generally use <https://boundingbox.klokantech.com/> to visually create
+bounding boxes. This is a good one for New Hampshire:
+
+```bash
+python download.py --bbox="-72.5623, 42.6938, -70.6603, 45.3534"
+bash to_geojson.sh
+tippecanoe \
+    -Z11 \
+    -zg \
+    -P \
+    --extend-zooms-if-still-dropping \
+    -y FCode -y ContourElevation \
+    -l Elev_Contour \
+    -o contours.mbtiles \
+    data/geojson/*.geojson
+```
+
+I use these tippecanoe options:
+
+- `-Z11`: Set the minimum zoom to 11. Tippecanoe won't create any overview tiles.
+- `-zg`: Let Tippecanoe guess the maximum zoom level. It seems from testing that it selects `11`, i.e. that 11 is high enough to represent the contours
+- `-P`: run in parallel. If the GeoJSON files are not line-delimited, won't actually run in parallel.
+- `--extend-zooms-if-still-dropping`: Not sure if this actually does anything since I'm not using `--drop-densest-as-needed`.
+- `-y`: only keep the provided attributes in the MVT. I think the only metadata needed for styling is `FCode`, which determines whether it's a multiple of 200' and should be styled darker, and `ContourElevation`, which stores the elevation itself. I haven't checked if you can do modular arithmetic on the fly in the Mapbox style specification, but if you can then you could leave out `FCode`.
+- `-l`: combine all files into a single layer named `Elev_Contour`. Otherwise, it would create a different layer in the vector tiles for each provided file name
+- `-o`: output file name. If you want a directory of vector tiles instead of a `.mbtiles` file, use `-e`
+- `data/geojson/*.geojson`: path to input data
+
+
+### Hillshading
+
+Hillshading is essential
+
+
+```
+git clone https://github.com/nst-guide/hillshade
+cd hillshade
+```
+
+```bash
+python download.py --bbox="-72.5623, 42.6938, -70.6603, 45.3534" --high_res
+bash unzip.sh --high_res
+gdalbuildvrt -vrtnodata -9999 data/dem_hr_9999.vrt data/unzipped_hr/*.img
+gdalwarp -r cubicspline -s_srs EPSG:4269 -t_srs EPSG:3857 -dstnodata 0 -co COMPRESS=DEFLATE data/dem_hr_9999.vrt data/dem_hr_9999_epsg3857.vrt
+rio rgbify -b -10000 -i 0.1 --min-z 6 --max-z 13 -j 15 --format webp data/dem_hr_9999_epsg3857.vrt data/terrain_webp.mbtiles
+rio rgbify -b -10000 -i 0.1 --min-z 6 --max-z 13 -j 15 --format png data/dem_hr_9999_epsg3857.vrt data/terrain_png.mbtiles
+mb-util data/terrain_webp.mbtiles data/terrain_webp
+mb-util data/terrain_png.mbtiles data/terrain_png
+```
