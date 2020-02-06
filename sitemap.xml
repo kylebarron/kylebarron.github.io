@@ -6,5 +6,4 @@
 <url> <loc>https://kylebarron.dev/about</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/projects</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/resume</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://kylebarron.dev/projects/osm-liberty-topo</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 </urlset>
