@@ -1,6 +1,7 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { Styled } from "theme-ui";
 
 // Language colors from:
 // https://github.com/ozh/github-colors/blob/master/colors.json
@@ -19,7 +20,7 @@ const LANGUAGES = {
   java: {
     color: "#b07219",
     name: "Java",
-  }
+  },
 };
 
 export default function GithubLink(props) {
@@ -33,15 +34,16 @@ export default function GithubLink(props) {
           {LANGUAGES[language].name}{" "}
         </span>
       ))}
-      <a href={href} target="_blank" rel="noopener noreferrer">
+      {/* Styled.a gives the link the same styling as other links in the theme: https://theme-ui.com/api#styled */}
+      <Styled.a href={href} target="_blank" rel="noopener noreferrer">
         <FontAwesomeIcon icon={faGithub} /> Source
-      </a>
+      </Styled.a>
     </span>
   );
 }
 
 function LanguageDot(props) {
-  const { width = 12, color = '#cccccc' } = props;
+  const { width = 12, color = "#cccccc" } = props;
   return (
     <svg width={width} viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
       <g color={color}>
