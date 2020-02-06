@@ -21,10 +21,15 @@ const LANGUAGES = {
     color: "#b07219",
     name: "Java",
   },
+  bash: {
+    color: "#89e051",
+    name: "Bash",
+  },
 };
 
 export default function GithubLink(props) {
-  const { href, languages } = props;
+  const { href, languages = [], linkText = "Source" } = props;
+  if (!href) return;
 
   return (
     <span>
@@ -36,7 +41,7 @@ export default function GithubLink(props) {
       ))}
       {/* Styled.a gives the link the same styling as other links in the theme: https://theme-ui.com/api#styled */}
       <Styled.a href={href} target="_blank" rel="noopener noreferrer">
-        <FontAwesomeIcon icon={faGithub} /> Source
+        <FontAwesomeIcon icon={faGithub} /> {linkText}
       </Styled.a>
     </span>
   );

@@ -10,16 +10,137 @@ to support reproducible web-based mapping. The source for nearly all my projects
 is available at [Github](https://github.com/kylebarron).
 
 <Title text="Mapping" />
+<h5>
+  <a href="https://nst.guide" target="_blank" rel="noopener noreferrer">
+    National Scenic Trails Guide
+  </a>
+</h5>
+<div>
+  <div>
+    <GithubLink
+      languages={["js"]}
+      href="https://github.com/nst-guide/web"
+      linkText="Website"
+    />
+  </div>
+  <div>
+    <GithubLink
+      languages={["js"]}
+      href="https://github.com/nst-guide/mobile"
+      linkText="Mobile App"
+    /> (In progress)
+  </div>
+  <div>
+    <GithubLink
+      languages={["py"]}
+      href="https://github.com/nst-guide/data"
+      linkText="Data Generation"
+    />
+  </div>
+</div>
 
-##### [National Scenic Trails Guide](projects/nst-guide)
+An open-source project for exploring and navigating U.S. National Scenic Trails,
+starting with the Pacific Crest Trail.
 
-Hello world
+The [website](https://nst.guide) is designed to bring together most information
+hikers want: data overlays exist for land management boundaries, current and
+historical wildfires, public transit options near the trail or trail towns,
+current air quality, photography, and Wikipedia articles. All units, including
+peak elevations and contour lines, can be switched between Imperial and Metric.
 
-##### [OSM Liberty Topo](projects/osm-liberty-topo)
+The mobile app (in progress) will give hikers a free option for navigation while
+hiking the trail. It's built with React Native and
+[`react-native-mapbox-gl`](https://github.com/react-native-mapbox-gl/maps), to
+cover both platforms as efficiently as possible while giving me more experience
+with React.
 
-Hello world
+Essentially all data generation is automated, to allow for the possibility of
+expanding to other National Scenic Trails in the future.
+
+<h5>
+  <a
+    href="https://nst-guide.github.io/osm-liberty-topo"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    OSM Liberty Topo
+  </a>
+</h5>
+<GithubLink href="https://github.com/nst-guide/osm-liberty-topo" />
+
+A free topographic Mapbox GL basemap style with complete liberty to use and self
+host. This is a fork of [OSM Liberty](https://github.com/maputnik/osm-liberty)
+and combines vector tiles in the schema of OpenMapTiles with contour lines and
+hillshading to create a beautiful topographic vector map.
+
+##### OSM Liberty
+
+<GithubLink href="https://github.com/maputnik/osm-liberty" />
+
+OSM Liberty is one of the best free Mapbox GL basemap styles for general use. I
+contributed styling for river names and glacier land cover.
+
+##### nst-guide/terrain
+
+<GithubLink
+  languages={["py", "bash"]}
+  href="https://github.com/nst-guide/terrain"
+/>
+
+Scripts to generate contours, hillshade, [Terrain
+RGB](https://docs.mapbox.com/help/troubleshooting/access-elevation-data/#mapbox-terrain-rgb),
+and slope-angle shading tiles from Digital Elevation Model (DEM) data.
+
+<h5>
+  <a
+    href="https://nst-guide.github.io/naip"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    nst-guide/naip
+  </a>
+</h5>
+<GithubLink languages={["py"]} href="https://github.com/nst-guide/naip" />
+
+Scripts to generate high-resolution aerial imagery tiles from USDA National
+Agriculture Imagery Program (NAIP) data.
+
+<h5>
+  <a
+    href="https://nst-guide.github.io/fstopo"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    nst-guide/fstopo
+  </a>
+</h5>
+<GithubLink languages={["py"]} href="https://github.com/nst-guide/fstopo" />
+
+Scripts to generate map tiles from US Forest Service Topo quadrangle maps.
+
+<h5>
+  <a
+    href="https://nst-guide.github.io/contours"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    nst-guide/contours
+  </a>
+</h5>
+<GithubLink
+languages={["py", "bash"]}
+href="https://github.com/nst-guide/contours"
+/>
+
+Scripts to generate vector tile contours from USGS contour data.
 
 ##### `demquery`
+
+<GithubLink languages={["py"]} href="https://github.com/kylebarron/demquery" />
+
+Python library and command line interface to quickly and easily query elevation
+values on Digital Elevation Models. The command line interface can add
+elevations to a provided GeoJSON FeatureCollection.
 
 ##### `keplergl_quickvis`
 
@@ -28,7 +149,7 @@ Hello world
   href="https://github.com/kylebarron/keplergl_quickvis"
 />
 
-Python library and command line interface to quickly, interactively visualize
+Python library and command line interface to quickly and interactively visualize
 geospatial data with [Kepler.gl](https://kepler.gl/). Since I work with GIS data
 in Python, I use this whenever I need to see my data on a map.
 
