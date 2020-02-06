@@ -3,16 +3,8 @@
 <url> <loc>https://kylebarron.dev/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/blog</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/tags</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://kylebarron.dev/introduction-to-defence-against-the-dark-arts</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://kylebarron.dev/fantastic-beasts-and-where-to-find-them</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://kylebarron.dev/curses-counter-curses-and-more</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://kylebarron.dev/harry-potter-and-the-half-blood-prince</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/about</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/projects</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/resume</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/projects/osm-liberty-topo</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://kylebarron.dev/tags/dark-arts</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://kylebarron.dev/tags/highlight</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://kylebarron.dev/tags/novel</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://kylebarron.dev/tags/tutorial</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 </urlset>
