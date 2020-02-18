@@ -1,0 +1,33 @@
+---
+title: New Website
+date: 2020-02-17
+slug: /new-website
+description: Moving to GatsbyJS.
+---
+
+After a few years of having a semi-dead [Jekyll](https://jekyllrb.com/)-based website, I'm happy to transition to a new website based on [GatsbyJS](https://www.gatsbyjs.org/).
+
+I'm excited for this switch because I can incorporate some cool new technologies
+into the site. For example, [this post][this_post] is written in [_MDX_][mdx],
+which allows you to combine the simplicity of Markdown with the flexibility of
+React.
+
+For example, I can have editable code snippets that accept updates from the user, like this:
+```js react-live
+const onClick = () => {
+  alert("Change this text");
+};
+render(<button onClick={onClick}>Click me!</button>);
+```
+Update `Change this text`, click the button, and you can see the text you just
+put in!
+
+I'm using [this starter][gatsby_starter], which helped to get everything set up.
+The website is hosted on Github Pages, and builds and deploys automatically on
+every new commit using Travis CI, so I can just write and commit! Everything is
+open source at <https://github.com/kylebarron/kylebarron.github.io>.
+
+
+[this_post]: https://github.com/kylebarron/kylebarron.github.io/blob/source/content/posts/new-website/index.mdx
+[mdx]: https://mdxjs.com/
+[gatsby_starter]: https://www.gatsbyjs.org/starters/lekoarts/gatsby-starter-minimal-blog/
