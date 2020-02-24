@@ -10,6 +10,28 @@ to support reproducible web-based mapping. The source for nearly all my projects
 is available at [Github](https://github.com/kylebarron).
 
 <Title text="Mapping" />
+
+<h5>
+  <a href="https://all-transit.com" target="blank">
+    All Transit
+  </a>
+</h5>
+<div>
+  <GithubLink
+    languages={["js", "bash", "py"]}
+    href="https://github.com/kylebarron/all-transit"
+  />
+</div>
+
+A visualization of all public transit in the world (or at least what exists in
+the [Transitland](https://transit.land) database). Zoom into a city in the U.S.
+to see an animation of transit vehicles moving along their routes.
+
+I use Python, [`jq`](https://stedolan.github.io/jq/), and `sqlite` to download
+and analyze the source data. I use Gatsby and React for the website structure. I
+use React Map GL/Mapbox GL JS and Deck.gl for the map rendering; the former for
+the route geometries and the latter for the schedule animation.
+
 <h5>
   <a href="https://nst.guide" target="_blank" rel="noopener noreferrer">
     National Scenic Trails Guide
@@ -23,14 +45,14 @@ is available at [Github](https://github.com/kylebarron).
       linkText="Source: Website"
     />
   </div>
-  <div>
+  {/* <div>
     <GithubLink
       languages={["js"]}
       href="https://github.com/nst-guide/mobile"
       linkText="Source: Mobile App"
     />{" "}
     (In progress)
-  </div>
+  </div> */}
   <div>
     <GithubLink
       languages={["py"]}
@@ -49,11 +71,11 @@ historical wildfires, public transit options near the trail or trail towns,
 current air quality, photography, and Wikipedia articles. All units, including
 peak elevations and contour lines, can be switched between Imperial and Metric.
 
-The mobile app (in progress) will give hikers a free option for navigation while
+<!-- The mobile app (in progress) will give hikers a free option for navigation while
 hiking the trail. It's built with React Native and
 [`react-native-mapbox-gl`](https://github.com/react-native-mapbox-gl/maps), to
 cover both platforms as efficiently as possible while giving me more experience
-with React.
+with React. -->
 
 Essentially all data generation is automated, to allow for the possibility of
 expanding to other National Scenic Trails in the future.
