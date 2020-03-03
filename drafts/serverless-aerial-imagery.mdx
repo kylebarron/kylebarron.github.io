@@ -1,0 +1,254 @@
+---
+title: Serverless Aerial Imagery Tiles
+date: 2020-03-02
+slug: /blog/serverless-aerial-imagery
+description: Serving aerial imagery map tiles on the fly with AWS Lambda and Cloud-Optimized GeoTIFF
+---
+
+import 'katex/dist/katex.min.css';
+import TeX from '@matejmazur/react-katex';
+
+TODO: pricing section. Graph of costs per request usage. Mapbox free until 750,000 requests. https://www.mapbox.com/pricing/#tile
+
+
+Serving aerial imagery map tiles on the fly with AWS Lambda and Cloud-Optimized
+GeoTIFF.
+
+## Overview
+
+### Motivation
+
+Aerial imagery is huge, and generating and storing map tiles is non-trivial.
+
+For a rough bounding box of the U.S. we can use [`mercantile`][mercantile] to
+count the number of tiles at a mid-zoom.
+
+[mercantile]: https://github.com/mapbox/mercantile
+
+```bash
+> echo "[-126.71,24.49,-66.59,49.48]" | mercantile tiles 10 | wc -l
+15824
+```
+
+That's 15,000 tiles at _zoom 10_. At each additional zoom each tile is split
+into 4. So at zoom 16, which displays the NAIP tiles in full resolution (at
+retina @2x resolution), the number of tiles is
+
+<TeX math="15,000 \times 4^{16 - 10} \approx 65,000,000" />
+
+That's _a lot_ of tiles. From [previous exploration][nst-guide/naip] of tiling
+NAIP imagery, I found that each retina tile is around 500KB uncompressed or
+100KB when compressed with `pngquant`. Thus even compressed NAIP tiles for the
+contiguous U.S. would take up 6.5 TB of space, and that's just for zoom 16. Zoom
+15 would take another ~1.5 TB of space, and so on.
+
+[nst-guide/naip]: https://github.com/nst-guide/naip
+
+### AWS Open Data
+
+NAIP data and Landsat images are hosted on AWS open datasets. The former is in
+requester pays buckets; the latter is free for anyone to download. Crucially,
+both are stored in Cloud-Optimized GeoTIFF (COG) format. This format uses HTTP
+range requests to download a small portion of a larger COG file. This means it's
+feasible to quickly work with portions of large images.
+
+### Outline
+
+
+
+## High zoom: Serverless NAIP
+
+
+Install `cogeo-mosaic`, which takes `.tif` files as input and creates a
+MosaicJSON. `cogeo-mosaic` depends on `pygeos`, which I've been unable to
+install through pip, so I first install that through Conda.
+
+```
+conda install pygeos -c conda-forge -y
+pip install cogeo-mosaic
+```
+
+First download the `manifest.txt`. This file contains a listing of all files
+stored in the `naip-visualization` S3 bucket.
+
+```bash
+> aws s3 cp s3://naip-visualization/manifest.txt ./ --request-payer
+> head -n 5 manifest.txt
+al/2011/100cm/fgdc/30085/m_3008501_ne_16_1_20110815.txt
+al/2011/100cm/fgdc/30085/m_3008501_nw_16_1_20110815.txt
+al/2011/100cm/fgdc/30085/m_3008502_ne_16_1_20110815.txt
+al/2011/100cm/fgdc/30085/m_3008502_nw_16_1_20110815.txt
+al/2011/100cm/fgdc/30085/m_3008503_ne_16_1_20110815.txt
+```
+
+Aerial imagery is recorded by state, and most states have [multiple years of
+availability](https://www.arcgis.com/home/webmap/viewer.html?webmap=17944d45bbef42afb05a5652d7c28aa5). For example, imagery was taken of Alabama in 2011, 2013, 2015, and
+2017. If I create a MosaicJSON using all years; the on-the-fly computations
+would be more difficult because more source imagery would have to be compared to
+generate a tile. I only care about most-recent imagery, so I'll extract the tif
+image URLs of the latest year for each state.
+
+```bash
+# Generate file with state abbrevations
+cat manifest.txt \
+    `# Extract text before first /, i.e. the state abbr` \
+    | awk -F '/' '{print $1}' \
+    `# Deduplicate` \
+    | uniq \
+    `# Remove an extraneous line` \
+    | sed '/manifest.test/d' \
+    `# Save to states.txt` \
+    > states.txt
+
+# For each state abbrevation, get the most recent year of images
+# For example, `al/2017`
+cat states.txt | while read state
+do
+    cat manifest.txt \
+        `# Keep only images of this state` \
+        | grep "^${state}/" \
+        `# Extract year` \
+        | awk -F '/' '{print $2}' \
+        `# Deduplicate` \
+        | uniq \
+        `# Sort by year, descending` \
+        | sort -nr \
+        `# Keep most recent year` \
+        | head -n 1 \
+        `# Prepend with state, so that it's {state}/{year}` \
+        | sed -e "s|^|${state}/|" \
+        `# Save to states_latest.txt` \
+        >> states_latest.txt
+done
+
+# For each latest state-year combination, keep URLs of applicable tif images
+cat states_latest.txt | while read state_latest
+do
+    cat manifest.txt \
+        | grep "^${state_latest}/" \
+        | grep ".tif" \
+        | sed -e 's|^|s3://naip-visualization/|' \
+        >> tif_latest.txt
+done
+```
+
+See how many tif images per state
+```bash
+cat states.txt | while read state
+do
+    # printf "State: $state "
+    cat tif_latest.txt \
+        | grep "^s3://naip-visualization/${state}/" \
+        | wc -l
+done
+```
+
+Example with Rhode Island
+```bash
+cat tif_latest.txt \
+    | grep "^s3://naip-visualization/ri/" \
+    | cogeo-mosaic footprint - > footprint.geojson
+```
+
+Total number of files
+```bash
+> wc -l tif_latest.txt
+219068 tif_latest.txt
+```
+
+NAIP imagery tiffs are in a requester pays bucket. In order to access them, you
+need to set the `AWS_REQUEST_PAYER` environment variable:
+
+```bash
+export AWS_REQUEST_PAYER="requester"
+```
+
+I also found that on an AWS EC2 instance; `cogeo-mosaic create` was failing
+while it was working on my local computer. In general, if `cogeo-mosaic create`
+isn't working for some URL; you should run `rio info <URL>` and see what the
+error is, since `cogeo-mosaic` uses `rasterio` internally, but doesn't currently
+print `rasterio` errors to stdout. In my case, I had to set the certificates
+path (see
+[cogeotiff/rio-tiler#19](https://github.com/cogeotiff/rio-tiler/issues/19),
+[mapbox/rasterio#942](https://github.com/mapbox/rasterio/issues/942)).
+
+```bash
+export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+```
+
+Then create the MosaicJSON file. GET requests are priced at `$0.0004` per 1000
+requests, so creating the MosaicJSON should cost `0.0004 * (219068 / 1000) =
+0.087`. 9 cents!
+
+This took about 1.5GB of memory.
+```bash
+cat tif_latest.txt \
+    | cogeo-mosaic create - \
+    > naip_mosaic.json
+```
+
+### Deploy
+
+```bash
+git clone https://github.com/developmentseed/cogeo-mosaic-tiler.git
+
+# Create lambda package
+cd cogeo-mosaic-tiler & make package
+
+# Deploy
+npm install serverless -g
+sls deploy --bucket kylebarron-landsat-test --region us-west-2
+```
+
+Add the mosaic json
+
+Create Mosaic id (https://github.com/developmentseed/cogeo-mosaic-tiler/blob/master/doc/API.md#mosaicjson-path)
+```bash
+bucket_name="..."
+gzip -c naip_mosaic.json > naip_mosaic.json.gz
+hash=$(sha224sum naip_mosaic.json.gz | awk '{print $1}')
+aws s3 cp naip_mosaic.json.gz "s3://${bucket_name}/mosaics/${hash}.json.gz"
+```
+
+
+## Medium zoom: Serverless Landsat
+
+```bash
+git clone https://github.com/developmentseed/awspds-mosaic
+cd awspds-mosaic
+make package
+cd services/landsat
+sls deploy \
+  --region us-west-2 \
+  --bucket a-bucket-where-you-store-data \
+  --token {OPTIONAL MAPBOX TOKEN}
+```
+
+
+
+## Low zoom: Pregenerated Landsat tiles
+
+## Caching through Cloudflare
+
+[This StackOverflow answer][so_api_gateway_cloudflare] is a good overview of how
+to connect Cloudflare as a proxy for API Gateway, so I won't go over the entire
+process. Just a couple edits I made:
+
+- Since I'm using the cheaper HTTP API Gateway endpoint instead of the standard REST API Gateway endpoint, the certificate needs to be uploaded to ACM in the same region as the lambda functions, which are in US-West-2 for NAIP.
+- I use the same base domain for traffic served directly from S3. Since S3 doesn't support HTTPS traffic, I need to have Cloudflare's SSL setting set to Flexible, which means that traffic is encrypted between the user and Cloudflare, but not between Cloudflare and S3. However I need to serve traffic to AWS API Gateway with HTTPS, so I set a page rule so that all traffic to AWS API Gateway has the Strict SSL setting. If you try to access your site and see a Cloudflare screen saying that the host server isn't responding, this may be your issue.
+- Don't forget to set a "Base Path Mapping" on the AWS API Gateway screen so that the traffic passed through the custom URL is correctly passed on to the right lambda function.
+
+[so_api_gateway_cloudflare]: https://stackoverflow.com/a/45849093
+
+
+## Previous work
+
+[`landsat-on-aws`](https://github.com/awslabs/landsat-on-aws) and the old [`naip-on-aws`](https://github.com/amazon-archives/naip-on-aws) appear to have only served a single image at a time. The former is still running, and you can see the website at <https://landsatonaws.com/>.
+
+
+
+## References and more info
+
+- [Helpful blog post](https://medium.com/devseed/cog-talk-part-2-mosaics-bbbf474e66df) on mosaicing COGs, and introducing `rio-tiler-mosaic`.
+- [`rio glui`](https://github.com/mapbox/rio-glui): inspect a COG in the browser on the fly. I see this as a raster equivalent of the great [`mbview`](https://github.com/mapbox/mbview), which lets you inspect vector tiles easily. `rio glui` can only inspect one COG at a time, but still helpful.
+
