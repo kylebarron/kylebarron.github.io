@@ -22,6 +22,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.12.1",
     "@fortawesome/react-fontawesome": "^0.1.8",
     "@lekoarts/gatsby-theme-minimal-blog": "^2.0.1",
+    "@matejmazur/react-katex": "^3.0.2",
     "@theme-ui/components": "^0.3.1",
     "gatsby": "^2.13.3",
     "gatsby-plugin-google-analytics": "^2.1.4",
@@ -30,6 +31,7 @@
     "gatsby-plugin-offline": "^2.2.4",
     "gatsby-plugin-sitemap": "^2.2.19",
     "gh-pages": "^2.2.0",
+    "katex": "^0.11.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-map-gl": "^5.2.2"
