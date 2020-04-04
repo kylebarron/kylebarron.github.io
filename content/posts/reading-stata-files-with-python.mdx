@@ -1,10 +1,16 @@
 ---
-layout: "post"
-title: "Reading Stata files with Python"
-date: "2018-01-08 11:59"
+title: Reading Stata files with Python
+date: 2018-01-08
+slug: /blog/reading-stata-files-with-python
 ---
 
-Stata is great for the small stuff, but Python is way better for anything intensive. However, you'll often have data in Stata's `.dta` format that you need to read. This post will detail the nice features available in Python's Stata import.
+import 'katex/dist/katex.min.css';
+import TeX from '@matejmazur/react-katex';
+
+Stata is fine for the small stuff, but Python is way better for anything
+intensive. However, you'll often have data in Stata's `.dta` format that you
+need to read. This post will detail the nice features available in Python's
+Stata import.
 
 We'll use the 1978 Automobile Data that comes with Stata. First export this data into a file in your working directory:
 ```stata
@@ -85,24 +91,20 @@ The former shows you the data types that will be used in Python upon import and 
 
 From `itr.dtyplist`, we can see that the first column is a string of length 18, while the rest are types `numpy.int8`, `numpy.int16`, and `numpy.float32`. These data types come from [Numpy](http://www.numpy.org/), a scientific library that Pandas is based upon, and correspond to Stata's `byte`, `int`, and `float`, respectively (see Stata's [`help data types`](https://www.stata.com/help.cgi?datatypes)).
 
-The size of the data in memory is almost exactly the number of rows times the sum of the number of bytes needed for each row. I.e. if the number of rows is $N$, and the number of bytes each column uses is $B_{col}$, then the total memory use of the dataset is $N * \sum_{col} B_{col}$.
+The size of the data in memory is almost exactly the number of rows times the sum of the number of bytes needed for each row. I.e. if the number of rows is
 
-This can be helpful with understanding how many rows of a file to import at once. Let's say you want to not use more than 1GB of memory at once. If you want to import all columns of `auto.dta`, each row takes up `sum(itr.col_sizes)` $= 43$ bytes. So the number of rows you can import at a time is
-\[
-1024 MB * \frac{1024 KB}{1 MB} * \frac{1024 B}{1 KB} * \frac{1 \text{ row}}{43 B} \approx 25 \text{ million rows}
-\]
+<TeX math="N" />
+
+and the number of bytes each column uses is
+
+<TeX math="B_{col}" />
+
+then the total memory use of the dataset is
+
+<TeX math="N * \sum_{col} B_{col}" />
+
+This can be helpful with understanding how many rows of a file to import at once. Let's say you want to not use more than 1GB of memory at once. If you want to import all columns of `auto.dta`, each row takes up `sum(itr.col_sizes)` = 43 bytes. So the number of rows you can import at a time is
+
+<TeX math="1024 MB * \frac{1024 KB}{1 MB} * \frac{1024 B}{1 KB} * \frac{1 \text{ row}}{43 B} \approx 25 \text{ million rows}" block />
 
 Obviously with the `auto.dta` dataset we don't need to add restrictions on rows or columns, but in datasets with columns -- especially those with many string columns -- you might not be able to read in your whole dataset at once.
-
-
-
-## Importing Data
-
-Let's say we want to import all the data
-
-
-
-
-
-
-
