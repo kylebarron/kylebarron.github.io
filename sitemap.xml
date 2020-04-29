@@ -3,6 +3,7 @@
 <url> <loc>https://kylebarron.dev/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/blog</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/tags</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://kylebarron.dev/blog/caching-lambda-functions-cloudflare</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/blog/all-transit</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/blog/new-website</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://kylebarron.dev/blog/reading-stata-files-with-python</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
