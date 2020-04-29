@@ -137,3 +137,11 @@ a "Cache Everything" page rule.
 In order to find out if any given request was served from Cloudflare's cache,
 you can inspect the `cf-cache-status` header on the response. If the value is
 `HIT`, the asset was served from Cloudflare's cache.
+
+**Footnotes**:
+
+If you use the HTTP API endpoints, you need the certificate to be in _the same
+region_ as the API. However that also means that if you have HTTP API's in two
+separate regions, you can't use one domain for both. You'll have to create a
+separate domain for each region. For the Cloudflare page rule, set an asterisk
+like `*lambda.domain`, so that you can use one page rule for all subdomains.
