@@ -12,7 +12,7 @@ module.exports = {
     siteUrl: "https://kylebarron.dev",
     siteDescription: "Kyle Barron",
     siteLanguage: "en",
-    author: "Kyle Barron",
+    author: "@kylebarron2",
     siteImage: "",
   },
   plugins: [
@@ -24,6 +24,10 @@ module.exports = {
         // I believe this uses Moment.js's format strings
         // https://momentjs.com/docs/#/displaying/format/
         formatString: "MMMM Do YYYY",
+        showLineNumbers: false,
+        // Set to false so that I can use my own custom config below to support
+        // page links
+        mdx: false,
         navigation: [
           {
             title: `Blog`,
@@ -43,6 +47,39 @@ module.exports = {
             name: "Github",
             url: "https://github.com/kylebarron",
           },
+        ],
+      },
+    },
+    // MDX config
+    {
+      resolve: `gatsby-plugin-mdx`,
+      options: {
+        extensions: [`.mdx`, `.md`],
+        gatsbyRemarkPlugins: [
+          {
+            resolve: `gatsby-remark-images`,
+            options: {
+              maxWidth: 960,
+              quality: 90,
+              linkImagesToOriginal: false,
+            },
+          },
+          // Support linking to headers
+          "gatsby-remark-autolink-headers",
+        ],
+        plugins: [
+          {
+            resolve: `gatsby-remark-images`,
+            options: {
+              maxWidth: 960,
+              quality: 90,
+              linkImagesToOriginal: false,
+            },
+          },
+          // This is necessary both in gatsbyRemarkPlugins and in plugins
+          // When missing from plugins, loading url with hash from outside the
+          // page doesn't work. It only works if you already loaded the page
+          "gatsby-remark-autolink-headers",
         ],
       },
     },
