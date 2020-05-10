@@ -13,12 +13,13 @@ module.exports = {
     siteDescription: "Kyle Barron",
     siteLanguage: "en",
     author: "Kyle Barron",
-    // siteImage: "static/banner.jpg"
+    siteImage: ""
   },
   plugins: [
     {
       resolve: `@lekoarts/gatsby-theme-minimal-blog`,
       options: {
+        feedTitle: "Kyle Barron's blog",
         navigation: [
           {
             title: `Blog`,
