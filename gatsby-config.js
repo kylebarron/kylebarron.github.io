@@ -13,13 +13,17 @@ module.exports = {
     siteDescription: "Kyle Barron",
     siteLanguage: "en",
     author: "Kyle Barron",
-    siteImage: ""
+    siteImage: "",
   },
   plugins: [
     {
       resolve: `@lekoarts/gatsby-theme-minimal-blog`,
       options: {
         feedTitle: "Kyle Barron's blog",
+        // Custom date display format
+        // I believe this uses Moment.js's format strings
+        // https://momentjs.com/docs/#/displaying/format/
+        formatString: "MMMM Do YYYY",
         navigation: [
           {
             title: `Blog`,
