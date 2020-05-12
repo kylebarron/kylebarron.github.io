@@ -11,6 +11,35 @@ is available at [Github](https://github.com/kylebarron).
 
 <Title text="Mapping" />
 <h5>
+  <a href="https://kylebarron.dev/usgs-topo-mosaic" target="blank">
+    usgs-topo-tiler & usgs-topo-mosaic
+  </a>
+</h5>
+<div>
+  <GithubLink
+    languages={["py"]}
+    href="https://github.com/kylebarron/usgs-topo-tiler"
+    linkText="Source: usgs-topo-tiler"
+  />
+</div>
+<div>
+  <GithubLink
+    languages={["py"]}
+    href="https://github.com/kylebarron/usgs-topo-mosaic"
+    linkText="Source: usgs-topo-mosaic"
+  />
+</div>
+
+`usgs-topo-tiler` is a Python package to read Web Mercator map tiles from USGS
+Historical Topographic Maps. `usgs-topo-mosaic` is a fork of
+[cogeo-mosaic-tiler][cogeo-mosaic-tiler] to serve USGS Historical Topographic
+map tiles on demand. Together, they enable serving map tiles on demand from the
+USGS's [public collection][usgs_htmc] of 181,000 historical topographic maps.
+
+[cogeo-mosaic-tiler]: https://github.com/developmentseed/cogeo-mosaic-tiler
+[usgs_htmc]: https://www.usgs.gov/core-science-systems/ngp/topo-maps/historical-topographic-map-collection?qt-science_support_page_related_con=0
+
+<h5>
   <a href="https://all-transit.com" target="blank">
     All Transit
   </a>
@@ -151,8 +180,8 @@ Scripts to generate map tiles from US Forest Service Topo quadrangle maps.
   </a>
 </h5>
 <GithubLink
-languages={["py", "bash"]}
-href="https://github.com/nst-guide/contours"
+  languages={["py", "bash"]}
+  href="https://github.com/nst-guide/contours"
 />
 
 Scripts to generate vector tile contours from USGS contour data.
@@ -274,8 +303,8 @@ MkDocs](https://squidfunk.github.io/mkdocs-material/) as the theming.
   </a>
 </h5>
 <GithubLink
-languages={["js"]}
-href="https://github.com/kylebarron/kylebarron.github.io"
+  languages={["js"]}
+  href="https://github.com/kylebarron/kylebarron.github.io"
 />
 
 This website is built with [GatsbyJS](https://www.gatsbyjs.org/), starting from
