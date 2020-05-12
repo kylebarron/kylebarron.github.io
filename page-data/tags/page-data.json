@@ -1,1 +1,1 @@
-{"componentChunkName":"component---node-modules-lekoarts-gatsby-theme-minimal-blog-core-src-templates-tags-query-tsx","path":"/tags","result":{"data":{"allPost":{"group":[]}},"pageContext":{}}}
+{"componentChunkName":"component---node-modules-lekoarts-gatsby-theme-minimal-blog-core-src-templates-tags-query-tsx","path":"/tags","result":{"data":{"allPost":{"group":[{"fieldValue":"Cloud-optimized GeoTIFF","totalCount":1},{"fieldValue":"Map tiles","totalCount":1},{"fieldValue":"Serverless","totalCount":1}]}},"pageContext":{}}}
