@@ -47,8 +47,7 @@ const code = {
     display: `inline-block`,
   },
   "p > code, li > code": {
-    // Make background light
-    bg: tint(`secondary`, 0.9),
+    // Remove background
     px: 2,
     py: 1,
     borderRadius: `2px`,
