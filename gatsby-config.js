@@ -47,6 +47,14 @@ module.exports = {
             name: "Github",
             url: "https://github.com/kylebarron",
           },
+          {
+            name: "Twitter",
+            url: "https://twitter.com/kylebarron2"
+          },
+          {
+            name: "RSS",
+            url: "https://kylebarron.dev/rss.xml"
+          }
         ],
       },
     },
