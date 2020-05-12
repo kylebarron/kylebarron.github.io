@@ -23,7 +23,7 @@ module.exports = {
         // Custom date display format
         // I believe this uses Moment.js's format strings
         // https://momentjs.com/docs/#/displaying/format/
-        formatString: "MMMM Do YYYY",
+        formatString: "MMMM Do, YYYY",
         showLineNumbers: false,
         // Set to false so that I can use my own custom config below to support
         // page links
