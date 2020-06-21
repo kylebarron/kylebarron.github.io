@@ -10,6 +10,52 @@ to support reproducible web-based mapping. The source for nearly all my projects
 is available at [Github](https://github.com/kylebarron).
 
 <Title text="Mapping" />
+
+##### pymartini
+
+<GithubLink languages={["py"]} href="https://github.com/kylebarron/pymartini" />
+
+A Cython port of [Martini](https://github.com/mapbox/martini) for fast RTIN
+terrain mesh generation, 2-3x faster than Martini in Node.
+
+This was my first time using Cython and I was thrilled with its
+ease of use and performance. Upon first porting the original JavaScript Martini
+code to pure Python, it was taking around 5 seconds to generate one tile. After
+converting to Cython, it's within 50 milliseconds.
+
+<h5>
+  <a href="https://kylebarron.dev/quantized-mesh-encoder/" target="blank">
+    quantized-mesh-encoder
+  </a>
+</h5>
+<div>
+  <GithubLink
+    languages={["py"]}
+    href="https://github.com/kylebarron/quantized-mesh-encoder"
+  />
+</div>
+
+A fast Python [Quantized Mesh](https://github.com/CesiumGS/quantized-mesh)
+encoder. Encodes a mesh with 100k coordinates and 180k triangles in 20ms.
+
+With judicious use of vectorized Numpy functions, I was able to achieve speeds
+of at least 100x faster than [an existing Python
+library](https://github.com/loicgasser/quantized-mesh-tile).
+
+<h5>
+  <a href="https://kylebarron.dev/naip-cogeo-mosaic/" target="blank">
+    naip-cogeo-mosaic
+  </a>
+</h5>
+<div>
+  <GithubLink
+    languages={["py"]}
+    href="https://github.com/kylebarron/naip-cogeo-mosaic"
+  />
+</div>
+
+Serverless high-resolution NAIP map tiles from Cloud-Optimized GeoTIFFs for the lower 48 U.S. states.
+
 <h5>
   <a href="https://kylebarron.dev/usgs-topo-mosaic" target="blank">
     usgs-topo-tiler & usgs-topo-mosaic
