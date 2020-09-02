@@ -17,7 +17,7 @@ interactive example][naip-example]**.
 
 [naip-example]: https://kylebarron.dev/naip-cogeo-mosaic
 
-### Overview
+## Overview
 
 More and more public imagery sources are being provided in [Cloud-Optimized
 GeoTIFF (COG)][cogeo], an efficient file format for fast random-access reads
@@ -39,7 +39,7 @@ give an overview of the imagery available and best practices for optimal
 performance. For deployment instructions and other documentation, [visit the
 project on Github][naip-cogeo-mosaic].
 
-### NAIP Data
+## NAIP Data
 
 The U.S. Department of Agriculture (USDA) oversees the [National Agriculture
 Imagery Program (NAIP)][usda_naip]. Since 2003, this program has collected
@@ -68,7 +68,7 @@ within 500ms. This on-demand rendering provides multiple benefits:
 - Lower costs. By not storing a copy of the data, you can avoid storage costs for pregenerated imagery. Source NAIP data is over 30TB in size; just to store that data on S3 would cost several hundred dollars a month.
 - Greater image selection flexibility. By not pregenerating any imagery, you can give users the choice of what year's data to view. As soon as a new year's data exists, your maps can be updated.
 
-### MosaicJSON
+## MosaicJSON
 
 As described in my [COG overview blog post][overview_post_mosaicjson]:
 
@@ -103,7 +103,7 @@ dynamic tiling. Most of `naip-cogeo-mosaic` is dedicated to working with the
 NAIP metadata to create a seamless, efficient mosaic. Consult [its
 documentation][naip-cogeo-mosaic] for more information.
 
-### Image Overviews
+## Image Overviews
 
 Cloud-Optimized GeoTIFF files include a number of internal _overviews_:
 lower-resolution, downsampled versions of the image, which are precomputed and
@@ -135,7 +135,7 @@ time rather than on demand.
 The [`naip-cogeo-mosaic` documentation][naip-cogeo-mosaic] has more information
 on how to use [`cogeo-mosaic`][cogeo-mosaic] to create these overviews.
 
-### Dynamic Tiling Performance
+## Dynamic Tiling Performance
 
 I've spent a lot of time working on performance for dynamic tiling, with the
 goal of reducing latency to the point that it's viable for a wide range of
@@ -145,7 +145,7 @@ With my current serverless solution hosted on AWS Lambda, I'm able to get around
 500ms latency (longer for cold starts). In the following sections I'll outline
 the things you should keep in mind to keep performance as high as possible.
 
-#### Minimize number of source assets
+### Minimize number of source assets
 
 Since GDAL, the program underlying the dynamic tiling process, is synchronous,
 the largest amount of time is spent waiting on network requests to S3 for each
@@ -157,7 +157,7 @@ As [described above](#mosaicjson), this step is done ahead of time, while
 creating the MosaicJSON. The process of minimizing superfluous source assets is
 taken care of within `naip-cogeo-mosaic` when you make a mosaic.
 
-#### 256x256 pixel images
+### 256x256 pixel images
 
 Images used in web maps usually come in square images of either 256x256 pixels
 or 512x512 pixels (@2x resolution). Using @2x resolution tiles requires fewer
@@ -171,7 +171,7 @@ to 3 times longer—to generate a @2x scale image than a @1x scale image. Thus,
 serving @1x scale images is preferable when you prioritize speed, but server
 costs will be slightly higher since you need so many more requests.
 
-#### Locate server in `us-west-2`
+### Locate server in `us-west-2`
 
 The tiler works by
 
@@ -193,7 +193,7 @@ Additionally, since NAIP imagery is stored in a Requester Pays S3 bucket,
 locating the server in the same region will be significantly cheaper as you
 won't need to pay egress charges on intermediate data transfer.
 
-#### Use GDAL 2.4, not 3.1
+### Use GDAL 2.4, not 3.1
 
 As of summer 2020, GDAL 2.4 has been tested to be [_significantly
 faster_][gdal2_slow] ([>10x][gdal2_speedup]) than GDAL 3.1, at least for this specific
@@ -202,7 +202,7 @@ use case.
 [gdal2_slow]: https://github.com/lambgeo/docker-lambda/issues/2
 [gdal2_speedup]: https://github.com/developmentseed/cogeo-mosaic-tiler/issues/4#issuecomment-604120617
 
-#### Use DynamoDB as the MosaicJSON backend
+### Use DynamoDB as the MosaicJSON backend
 
 The MosaicJSON defines a mapping from mercator tiles to image urls. Since it
 must define this mapping for _every mercator tile_ (at the minimum zoom, which
@@ -221,7 +221,7 @@ MosaicJSON from 2.5s to around 20ms.
 
 [dynamodb]: https://aws.amazon.com/dynamodb/
 
-#### Client-side image manipulation
+### Client-side image manipulation
 
 Often the NAIP imagery is visually a bit bland and benefits from increased
 saturation. While it's possible to do this server side, it increases image load
@@ -229,13 +229,13 @@ times by 100-200ms. For WebGL-enabled map clients like Mapbox GL JS or
 [deck.gl](https://deck.gl), client-side image saturation is easy and
 instantaneous, so this is better to do client side.
 
-#### Caching
+### Caching
 
 I'm a big fan of Cloudflare's free tier as a simple solution to both speed up my
 site and keep costs low by reducing the number of requests that reach my server.
 Some sort of caching is ideal.
 
-### Pricing
+## Pricing
 
 A rough estimate of the cost with my serverless approach is **$25 per million
 requests**. Note that this is only for requests _that reach Lambda_; using
@@ -256,7 +256,7 @@ apparently the same price.) But apart from being cheap, a great benefit of the
 dynamic tiling approach is that you can choose _any_ combination of imagery you
 wish. It's just as easy to serve tiles from 2011 as it is from 2018.
 
-### Drawbacks
+## Drawbacks
 
 That said, there are a few drawbacks to using NAIP imagery and reasons why tiled
 imagery from a commercial company such as Mapbox can often be better.
@@ -268,7 +268,7 @@ imagery from a commercial company such as Mapbox can often be better.
 Since this project was designed for exploration and to be "good enough" for
 hobby mapping projects, these drawbacks are fine for my needs.
 
-### Conclusion
+## Conclusion
 
 If you appreciate this data, **talk to your elected officials**. [According to
 Wikipedia][naip_wikipedia], USDA is considering removing NAIP imagery from the
@@ -276,14 +276,14 @@ public domain in the near future.
 
 [naip_wikipedia]: https://en.wikipedia.org/wiki/National_Agriculture_Imagery_Program
 
-### References
+## References
 
 - [`naip-cogeo-mosaic`][naip-cogeo-mosaic]: the open source project underlying this blog post. Refer to its documentation for how to deploy.
 - [Titiler][titiler]: a next-generation dynamic tiling server that supports both serverless and server deployment. I'd recommend this over `cogeo-mosaic-tiler` for all new deployments.
 
 [titiler]: https://developmentseed.org/titiler/
 
-### Acknowledgements
+## Acknowledgements
 
 Thanks to [Vincent Sarago][vincent], [Jeff Albrecht][jeff], and many others for
 their invaluable feedback and work pushing the Cloud-Optimized GeoTIFF ecosystem

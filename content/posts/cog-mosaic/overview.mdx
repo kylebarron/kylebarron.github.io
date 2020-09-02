@@ -133,7 +133,7 @@ There are several interrelated tools. It's easy to get them confused.
 
 Here's an overview of the ecosystem.
 
-#### `rio-tiler`
+### `rio-tiler`
 
 [`rio-tiler`][rio-tiler] is at the core of the ecosystem. It's a library whose
 main purpose is to create a mercator tile from a given input image. In contrast
@@ -156,7 +156,7 @@ mission-specific tilers have been refactored into a separate module,
 
 [rio-tiler-pds]: https://github.com/cogeotiff/rio-tiler-pds
 
-#### `rio-tiler-mosaic`
+### `rio-tiler-mosaic`
 
 [`rio-tiler-mosaic`][rio-tiler-mosaic] builds upon `rio-tiler` to work with
 multiple assets. It takes a list of assets that are _already known_ to overlap
@@ -176,7 +176,7 @@ standard tiler or a mission-specific tiler, such as the Landsat 8 tiler.
 _September 2020 update_: With the upcoming `rio-tiler` v2.0 release,
 `rio-tiler-mosaic` is merged into the main `rio-tiler` repository.
 
-#### `cogeo-mosaic`
+### `cogeo-mosaic`
 
 [`cogeo-mosaic`][cogeo-mosaic] is a Python library to create MosaicJSON files
 and load such files from various _backends_. In the upcoming 3.0 release, new
@@ -186,7 +186,7 @@ loading a JSON file from an S3 bucket.
 
 [cogeo-mosaic]: https://github.com/developmentseed/cogeo-mosaic
 
-#### `cogeo-mosaic-tiler`
+### `cogeo-mosaic-tiler`
 
 [`cogeo-mosaic-tiler`][cogeo-mosaic-tiler] wraps all of the above together. It's
 a python package and web server that depends on the above packages to serve
@@ -214,7 +214,7 @@ deployments, as `cogeo-mosaic-tiler` is less likely to receive updates.
 
 [titiler]: https://github.com/developmentseed/titiler
 
-#### `rio-cogeo`
+### `rio-cogeo`
 
 [`rio-cogeo`][rio-cogeo] is a library to facilitate _creating COGs_. It's rare
 that I use it because I'm generally tiling COGs that already exist publicly on
