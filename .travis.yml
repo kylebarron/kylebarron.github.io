@@ -1,19 +1,19 @@
-language: node_js
-before_script:
-  - npm install -g gatsby-cli
-node_js:
-  - "10"
-branches:
-  except:
-    # Built Gatsby source
-    - master
-    # Old Jekyll-based website
-    - jekyll
-deploy:
-  provider: script
-  script: yarn install && yarn run deploy-ci
-  skip_cleanup: true
-  # I use 'source' instead of 'master' as the default working branch because
-  # 'master' is where Github Pages needs the built site to live for a user site
-  on:
-    branch: source
+# language: node_js
+# before_script:
+#   - npm install -g gatsby-cli
+# node_js:
+#   - "10"
+# branches:
+#   except:
+#     # Built Gatsby source
+#     - master
+#     # Old Jekyll-based website
+#     - jekyll
+# deploy:
+#   provider: script
+#   script: yarn install && yarn run deploy-ci
+#   skip_cleanup: true
+#   # I use 'source' instead of 'master' as the default working branch because
+#   # 'master' is where Github Pages needs the built site to live for a user site
+#   on:
+#     branch: source
