@@ -150,6 +150,12 @@ tiler will find the data corresponding to that scene on AWS S3.
 
 [rio-tiler]: https://github.com/cogeotiff/rio-tiler
 
+_September 2020 update_: With the upcoming `rio-tiler` v2.0 release,
+mission-specific tilers have been refactored into a separate module,
+[`rio-tiler-pds`][rio-tiler-pds].
+
+[rio-tiler-pds]: https://github.com/cogeotiff/rio-tiler-pds
+
 #### `rio-tiler-mosaic`
 
 [`rio-tiler-mosaic`][rio-tiler-mosaic] builds upon `rio-tiler` to work with
@@ -166,6 +172,9 @@ simple plugin system, making it simple to create an image tile from either the
 standard tiler or a mission-specific tiler, such as the Landsat 8 tiler.
 
 [rio-tiler-mosaic]: https://github.com/cogeotiff/rio-tiler-mosaic
+
+_September 2020 update_: With the upcoming `rio-tiler` v2.0 release,
+`rio-tiler-mosaic` is merged into the main `rio-tiler` repository.
 
 #### `cogeo-mosaic`
 
@@ -197,6 +206,13 @@ need to be combined into a single image.
 
 [cogeo-mosaic-tiler]: https://github.com/developmentseed/cogeo-mosaic-tiler
 [awspds-mosaic]: https://github.com/developmentseed/awspds-mosaic
+
+_September 2020 update_: `cogeo-mosaic-tiler` is being superseded by
+[`titiler`][titiler], a newer dynamic tiling server that handles more use-cases
+and has more varied options for deployment. I recommend titiler for all new
+deployments, as `cogeo-mosaic-tiler` is less likely to receive updates.
+
+[titiler]: https://github.com/developmentseed/titiler
 
 #### `rio-cogeo`
 
