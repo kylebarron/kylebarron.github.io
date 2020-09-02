@@ -49,12 +49,12 @@ module.exports = {
           },
           {
             name: "Twitter",
-            url: "https://twitter.com/kylebarron2"
+            url: "https://twitter.com/kylebarron2",
           },
           {
             name: "RSS",
-            url: "https://kylebarron.dev/rss.xml"
-          }
+            url: "https://kylebarron.dev/rss.xml",
+          },
         ],
       },
     },
@@ -74,6 +74,8 @@ module.exports = {
           },
           // Support linking to headers
           "gatsby-remark-autolink-headers",
+          // Make iframes full width
+          "gatsby-remark-responsive-iframe",
         ],
         plugins: [
           {

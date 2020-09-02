@@ -30,6 +30,7 @@
     "gatsby-plugin-offline": "^2.2.4",
     "gatsby-plugin-sitemap": "^2.2.19",
     "gatsby-remark-autolink-headers": "^2.3.1",
+    "gatsby-remark-responsive-iframe": "^2.4.12",
     "katex": "^0.11.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
