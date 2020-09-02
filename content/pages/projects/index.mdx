@@ -9,9 +9,9 @@ I love to explore and build new things. I've recently been focused on projects
 to support reproducible web-based mapping. The source for nearly all my projects
 is available at [Github](https://github.com/kylebarron).
 
-<Title text="Mapping" />
+# Mapping
 
-##### pymartini
+## pymartini
 
 <GithubLink languages={["py"]} href="https://github.com/kylebarron/pymartini" />
 
@@ -23,11 +23,11 @@ ease of use and performance. Upon first porting the original JavaScript Martini
 code to pure Python, it was taking around 5 seconds to generate one tile. After
 converting to Cython, it's within 50 milliseconds.
 
-<h5>
+<h2>
   <a href="https://kylebarron.dev/quantized-mesh-encoder/" target="blank">
     quantized-mesh-encoder
   </a>
-</h5>
+</h2>
 <div>
   <GithubLink
     languages={["py"]}
@@ -42,11 +42,11 @@ With judicious use of vectorized Numpy functions, I was able to achieve speeds
 of at least 100x faster than [an existing Python
 library](https://github.com/loicgasser/quantized-mesh-tile).
 
-<h5>
+<h2>
   <a href="https://kylebarron.dev/naip-cogeo-mosaic/" target="blank">
     naip-cogeo-mosaic
   </a>
-</h5>
+</h2>
 <div>
   <GithubLink
     languages={["py"]}
@@ -56,11 +56,11 @@ library](https://github.com/loicgasser/quantized-mesh-tile).
 
 Serverless high-resolution NAIP map tiles from Cloud-Optimized GeoTIFFs for the lower 48 U.S. states.
 
-<h5>
+<h2>
   <a href="https://kylebarron.dev/usgs-topo-mosaic" target="blank">
     usgs-topo-tiler & usgs-topo-mosaic
   </a>
-</h5>
+</h2>
 <div>
   <GithubLink
     languages={["py"]}
@@ -85,11 +85,11 @@ USGS's [public collection][usgs_htmc] of 181,000 historical topographic maps.
 [cogeo-mosaic-tiler]: https://github.com/developmentseed/cogeo-mosaic-tiler
 [usgs_htmc]: https://www.usgs.gov/core-science-systems/ngp/topo-maps/historical-topographic-map-collection?qt-science_support_page_related_con=0
 
-<h5>
+<h2>
   <a href="https://all-transit.com" target="blank">
     All Transit
   </a>
-</h5>
+</h2>
 <div>
   <GithubLink
     languages={["js", "bash", "py"]}
@@ -107,11 +107,11 @@ use React Map GL/Mapbox GL JS and Deck.gl for the map rendering; the former for
 the route geometries and the latter for the schedule animation. I use `d3` to
 generate a high-resolution static image of transit in the continental U.S.
 
-<h5>
+<h2>
   <a href="https://nst.guide" target="_blank" rel="noopener noreferrer">
     National Scenic Trails Guide
   </a>
-</h5>
+</h2>
 <div>
   <div>
     <GithubLink
@@ -155,7 +155,7 @@ with React. -->
 Essentially all data generation is automated, to allow for the possibility of
 expanding to other National Scenic Trails in the future.
 
-<h5>
+<h2>
   <a
     href="https://nst-guide.github.io/osm-liberty-topo"
     target="_blank"
@@ -163,7 +163,7 @@ expanding to other National Scenic Trails in the future.
   >
     OSM Liberty Topo
   </a>
-</h5>
+</h2>
 <GithubLink href="https://github.com/nst-guide/osm-liberty-topo" />
 
 A free topographic Mapbox GL basemap style with complete liberty to use and self
@@ -171,14 +171,14 @@ host. This is a fork of [OSM Liberty](https://github.com/maputnik/osm-liberty)
 and combines vector tiles in the schema of OpenMapTiles with contour lines and
 hillshading to create a beautiful topographic vector map.
 
-##### OSM Liberty
+## OSM Liberty
 
 <GithubLink href="https://github.com/maputnik/osm-liberty" />
 
 OSM Liberty is one of the best free Mapbox GL basemap styles for general use. I
 contributed styling for river names and glacier land cover.
 
-##### nst-guide/terrain
+## nst-guide/terrain
 
 <GithubLink
   languages={["py", "bash"]}
@@ -189,7 +189,7 @@ Scripts to generate contours, hillshade, [Terrain
 RGB](https://docs.mapbox.com/help/troubleshooting/access-elevation-data/#mapbox-terrain-rgb),
 and slope-angle shading tiles from Digital Elevation Model (DEM) data.
 
-<h5>
+<h2>
   <a
     href="https://nst-guide.github.io/naip"
     target="_blank"
@@ -197,13 +197,13 @@ and slope-angle shading tiles from Digital Elevation Model (DEM) data.
   >
     nst-guide/naip
   </a>
-</h5>
+</h2>
 <GithubLink languages={["py"]} href="https://github.com/nst-guide/naip" />
 
 Scripts to generate high-resolution aerial imagery tiles from USDA National
 Agriculture Imagery Program (NAIP) data.
 
-<h5>
+<h2>
   <a
     href="https://nst-guide.github.io/fstopo"
     target="_blank"
@@ -211,12 +211,12 @@ Agriculture Imagery Program (NAIP) data.
   >
     nst-guide/fstopo
   </a>
-</h5>
+</h2>
 <GithubLink languages={["py"]} href="https://github.com/nst-guide/fstopo" />
 
 Scripts to generate map tiles from US Forest Service Topo quadrangle maps.
 
-<h5>
+<h2>
   <a
     href="https://nst-guide.github.io/contours"
     target="_blank"
@@ -224,7 +224,7 @@ Scripts to generate map tiles from US Forest Service Topo quadrangle maps.
   >
     nst-guide/contours
   </a>
-</h5>
+</h2>
 <GithubLink
   languages={["py", "bash"]}
   href="https://github.com/nst-guide/contours"
@@ -232,7 +232,7 @@ Scripts to generate map tiles from US Forest Service Topo quadrangle maps.
 
 Scripts to generate vector tile contours from USGS contour data.
 
-##### `demquery`
+## `demquery`
 
 <GithubLink languages={["py"]} href="https://github.com/kylebarron/demquery" />
 
@@ -240,7 +240,7 @@ Python library and command line interface to quickly and easily query elevation
 values on Digital Elevation Models. The command line interface can add
 elevations to a provided GeoJSON FeatureCollection.
 
-##### `keplergl_quickvis`
+## `keplergl_quickvis`
 
 <GithubLink
   languages={["py"]}
@@ -251,9 +251,9 @@ Python library and command line interface to quickly and interactively visualize
 geospatial data with [Kepler.gl](https://kepler.gl/). Since I work with GIS data
 in Python, I use this whenever I need to see my data on a map.
 
-<Title text="Jupyter" />
+# Jupyter
 
-##### Stata Jupyter Kernel
+## Stata Jupyter Kernel
 
 <GithubLink
   languages={["py"]}
@@ -271,7 +271,7 @@ HTML output even from computations on a remote server.
 
 As of February 2020, it has been downloaded [nearly 90,000 times](https://pepy.tech/project/stata-kernel).
 
-##### Hydrogen
+## Hydrogen
 
 <GithubLink languages={["js"]} href="https://github.com/nteract/hydrogen" />
 
@@ -282,14 +282,14 @@ code](https://github.com/nteract/hydrogen/commits?author=kylebarron) that
 allowed Jupyter Notebook files to be imported and exported as regular Python
 files.
 
-<Title text="Stata" />
+# Stata
 
 While working as an economics research assistant, I built a number of
 open-source tools that interface with the [Stata statistical
 package](https://stata.com) to improve research reproducibility and increase
 productivity.
 
-##### `stata-exec`
+## `stata-exec`
 
 <GithubLink
   languages={["js"]}
@@ -299,7 +299,7 @@ productivity.
 Send code to the Stata window from the Atom text editor. This is a more
 primitive version of running Stata code from Atom than the Jupyter kernel above.
 
-##### `language-stata`
+## `language-stata`
 
 <GithubLink
   languages={["py"]}
@@ -308,7 +308,7 @@ primitive version of running Stata code from Atom than the Jupyter kernel above.
 
 Syntax highlighting for Stata for the [Atom text editor](https://atom.io).
 
-##### `stataParquet`
+## `stataParquet`
 
 <GithubLink
   languages={["java"]}
@@ -321,9 +321,9 @@ able to successfully read Parquet files into Stata's memory, but it ended up
 being less performant than my friend Mauricio Caceres' [C++
 implementation](https://github.com/mcaceresb/stata-parquet).
 
-<Title text="Miscellaneous" />
+# Miscellaneous
 
-##### `medicare-documentation`
+## `medicare-documentation`
 
 <GithubLink
   languages={["py"]}
@@ -342,12 +342,13 @@ documentation faster. I used [MkDocs](https://www.mkdocs.org/) as the static
 site generator and [Material for
 MkDocs](https://squidfunk.github.io/mkdocs-material/) as the theming.
 
-<Title text="Meta" />
-<h5>
+# Meta
+
+<h2>
   <a href="https://kylebarron.dev" target="_blank" rel="noopener noreferrer">
     kylebarron.dev
   </a>
-</h5>
+</h2>
 <GithubLink
   languages={["js"]}
   href="https://github.com/kylebarron/kylebarron.github.io"
