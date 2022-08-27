@@ -9,11 +9,48 @@ I love to explore and build new things. I've recently been focused on projects
 to support reproducible web-based mapping. The source for nearly all my projects
 is available at [Github](https://github.com/kylebarron).
 
-# Mapping
+## GeoPolars
+
+<GithubLink
+  languages={["rust", "py", "js"]}
+  href="https://github.com/kylebarron/pyflatbush"
+/>
+
+GeoPolars extends the [Polars](https://github.com/pola-rs/polars) DataFrame library for use with geospatial data.
+
+## parquet-wasm
+
+<GithubLink
+  languages={["rust"]}
+  href="https://github.com/kylebarron/pyflatbush"
+/>
+
+Rust-based WebAssembly bindings to read and write Apache Parquet data
+
+## pyflatbush
+
+<GithubLink
+  languages={["cython", "py"]}
+  href="https://github.com/kylebarron/pyflatbush"
+/>
+
+A Cython port of [Flatbush](https://github.com/mourner/flatbush) for fast, static 2D spatial indexing.
+
+## suncalc-py
+
+<GithubLink
+  languages={["py"]}
+  href="https://github.com/kylebarron/suncalc-py"
+/>
+
+A fast, vectorized Python implementation of [`suncalc.js`](https://github.com/mourner/suncalc) for calculating sun position and sunlight phases (times for sunrise, sunset, dusk, etc.) for the given location and time.
 
 ## pymartini
 
-<GithubLink languages={["py"]} href="https://github.com/kylebarron/pymartini" />
+<GithubLink
+  languages={["cython", "py"]}
+  href="https://github.com/kylebarron/pymartini"
+/>
 
 A Cython port of [Martini](https://github.com/mapbox/martini) for fast RTIN
 terrain mesh generation, 2-3x faster than Martini in Node.
@@ -23,17 +60,21 @@ ease of use and performance. Upon first porting the original JavaScript Martini
 code to pure Python, it was taking around 5 seconds to generate one tile. After
 converting to Cython, it's within 50 milliseconds.
 
-<h2>
+## quantized-mesh-encoder
+
+{/\* <h2>
+
   <a href="https://kylebarron.dev/quantized-mesh-encoder/" target="blank">
     quantized-mesh-encoder
   </a>
-</h2>
+</h2> */}
 <div>
   <GithubLink
     languages={["py"]}
     href="https://github.com/kylebarron/quantized-mesh-encoder"
   />
 </div>
+
 
 A fast Python [Quantized Mesh](https://github.com/CesiumGS/quantized-mesh)
 encoder. Encodes a mesh with 100k coordinates and 180k triangles in 20ms.
@@ -56,11 +97,23 @@ library](https://github.com/loicgasser/quantized-mesh-tile).
 
 Serverless high-resolution NAIP map tiles from Cloud-Optimized GeoTIFFs for the lower 48 U.S. states.
 
-<h2>
+## deck.gl-raster
+
+<GithubLink
+  languages={["js", "glsl"]}
+  href="https://github.com/kylebarron/deck.gl-raster"
+/>
+
+deck.gl layers and WebGL modules for client-side satellite imagery analysis.
+
+## usgs-topo-tiler & usgs-topo-mosaic
+
+{/\* <h2>
+
   <a href="https://kylebarron.dev/usgs-topo-mosaic" target="blank">
     usgs-topo-tiler & usgs-topo-mosaic
   </a>
-</h2>
+</h2> */}
 <div>
   <GithubLink
     languages={["py"]}
@@ -75,6 +128,7 @@ Serverless high-resolution NAIP map tiles from Cloud-Optimized GeoTIFFs for the 
     linkText="Source: usgs-topo-mosaic"
   />
 </div>
+
 
 `usgs-topo-tiler` is a Python package to read Web Mercator map tiles from USGS
 Historical Topographic Maps. `usgs-topo-mosaic` is a fork of
@@ -232,6 +286,15 @@ Scripts to generate map tiles from US Forest Service Topo quadrangle maps.
 
 Scripts to generate vector tile contours from USGS contour data.
 
+## snap-to-tin
+
+<GithubLink
+  languages={["ts"]}
+  href="https://github.com/kylebarron/snap-to-tin"
+/>
+
+Snap vector features to the faces of a triangulated irregular network (TIN)
+
 ## `demquery`
 
 <GithubLink languages={["py"]} href="https://github.com/kylebarron/demquery" />
@@ -240,11 +303,11 @@ Python library and command line interface to quickly and easily query elevation
 values on Digital Elevation Models. The command line interface can add
 elevations to a provided GeoJSON FeatureCollection.
 
-## `keplergl_quickvis`
+## `keplergl_cli`
 
 <GithubLink
   languages={["py"]}
-  href="https://github.com/kylebarron/keplergl_quickvis"
+  href="https://github.com/kylebarron/keplergl_cli"
 />
 
 Python library and command line interface to quickly and interactively visualize

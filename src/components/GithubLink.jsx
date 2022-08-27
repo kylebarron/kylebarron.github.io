@@ -6,7 +6,15 @@ import { Styled } from "theme-ui";
 // Language colors from:
 // https://github.com/ozh/github-colors/blob/master/colors.json
 const LANGUAGES = {
+  cython: {
+    color: "#fedf5b",
+    name: "Cython",
+  },
   py: {
+    color: "#3572A5",
+    name: "Python",
+  },
+  python: {
     color: "#3572A5",
     name: "Python",
   },
@@ -14,7 +22,12 @@ const LANGUAGES = {
     color: "#f1e05a",
     name: "JavaScript",
   },
+  ts: {
+    color: "#3178c6",
+    name: "TypeScript",
+  },
   stata: {
+    color: "#1a5f91",
     name: "Stata",
   },
   java: {
@@ -25,6 +38,14 @@ const LANGUAGES = {
     color: "#89e051",
     name: "Bash",
   },
+  rust: {
+    color: "#dea584",
+    name: "Rust",
+  },
+  glsl: {
+    color: "#5686a5",
+    name: "GLSL",
+  },
 };
 
 export default function GithubLink(props) {
@@ -33,7 +54,7 @@ export default function GithubLink(props) {
 
   return (
     <span>
-      {languages.map(language => (
+      {languages.map((language) => (
         <span>
           <LanguageDot color={LANGUAGES[language].color} />{" "}
           {LANGUAGES[language].name}{" "}
