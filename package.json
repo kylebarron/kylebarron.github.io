@@ -25,7 +25,7 @@
     "@lekoarts/gatsby-theme-minimal-blog": "^2.5.1",
     "@matejmazur/react-katex": "^3.0.2",
     "@theme-ui/components": "^0.3.1",
-    "gatsby": "^2.24.53",
+    "gatsby": "^4.25.7",
     "gatsby-plugin-manifest": "^2.2.3",
     "gatsby-plugin-offline": "^2.2.4",
     "gatsby-plugin-sitemap": "^2.2.19",
