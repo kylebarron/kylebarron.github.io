@@ -1,8 +1,9 @@
-# Thoughts on GEOS in WebAssembly
-
-_Kyle Barron_
-<br/>
-_June 28, 2023_
+---
+title: Thoughts on GEOS in WebAssembly
+date: 2023-06-28
+slug: /blog/geos-wasm
+description: ...
+---
 
 JavaScript is missing a battle-tested geometry engine that's performant at scale.
 
@@ -12,7 +13,7 @@ That [nerdsniped](https://xkcd.com/356/) me, and here we are with a blog post! I
 I'm a proponent of WebAssembly and then consider what bringing efficient, stable computational
 primitives to the Wasm would look like.
 
-## Why not Turf? JSTS?
+# Why not Turf? JSTS?
 
 In Tom's repo he [wrote down some thoughts](https://github.com/tmcw/geos-wasm/blob/07e6858a00d83b2ee78daaf5467c6e1e376aa966/README.md):
 
@@ -22,7 +23,7 @@ In Tom's repo he [wrote down some thoughts](https://github.com/tmcw/geos-wasm/bl
 >
 > That said, JSTS is large - we've been trying to remove it from Turf for years and years, and it's not exactly the same set of bugs as GEOS. If I have bugs, I want all of the GEOS things to have bugs! And the roaring success of, say, Shapely, indicates that GEOS's level of bugs is pretty tolerable.
 
-### _Ports of complex libraries are really hard!_
+## _Ports of complex libraries are really hard!_
 
 This is something I learned from the [Apache Parquet](https://parquet.apache.org/) ecosystem.
 Parquet is an incredibly complex format with scores of various encodings, compressions, and a large
@@ -37,7 +38,7 @@ It's my belief that for any project beyond a certain complexity, there should on
 - One in Rust because removing memory errors brings so much potential and development speed to low-level code. I believe it's _tomorrow's_ performance-critical language.
 - One in Java because the Java Virtual Machine makes it hard to interface with external C libraries (and it's _yesterday's_ performance-critical language? :joy:).
 
-### From high-level languages, prefer bindings
+## From high-level languages, prefer bindings
 
 To me the core of Tom's reasoning above is
 
@@ -60,7 +61,7 @@ Keeping with the Parquet analogy above, there's a [core implementation in C++](h
 
 [^2]: Well, actually there are [_two_ Rust implementations](https://github.com/jorgecarleitao/parquet2) for technical reasons, but they plan to [converge eventually](https://github.com/jorgecarleitao/arrow2/issues/1429).
 
-### WebAssembly Performance
+## WebAssembly Performance
 
 Up until now I've focused on stability, but performance is crucial (TODO: change wording) as well. I think there are two main ways that WebAssembly can speed up code:
 
@@ -73,7 +74,7 @@ Keep in mind that WebAssembly is not guaranteed to magically improve performance
 
 My intuition is that code that's computationally-constrained and can take [`ArrayBuffer`s](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) as input and output has potential to be sped up in WebAssembly. Especially if you can vectorize the code by moving a loop out of JavaScript and into Wasm.
 
-### So... Turf? JSTS?
+## So... Turf? JSTS?
 
 Geometry algorithms are incredibly complex. Without diving into a computational geometry textbook I'd have no idea how to implement a [buffering algorithm](https://en.wikipedia.org/wiki/Buffer_analysis) from scratch. So I think the Parquet analogy applies well.
 
@@ -98,9 +99,9 @@ Performance also has a ton of
 
 For the point of discussion, let's consider for now that we've decided to write GEOS bindings for WebAssembly. We'll come back to GeoRust at the end.
 
-## Implementation
+# Implementation
 
-## Data Serialization is costly
+# Data Serialization is costly
 
 In many environmentrs you have to consider the cost of moving objects across a boundary.
 
@@ -110,7 +111,7 @@ In many environmentrs you have to consider the cost of moving objects across a b
   - additionally, wasm doesn't come with its own allocator. This means that
 
 
-### Moving data across the WASM boundary
+## Moving data across the WASM boundary
 
 Moving data between JS and Wasm in effect acts the same as moving data between JS and a Web Worker. There are two options:
 
@@ -128,17 +129,17 @@ For example, in Christoph's prototype, it:
 
  it serializes every GeoJSON object to WKT, then passes the WKT to GEOS
 
-### Licensing
+## Licensing
 
 GEOS is licensed under the LGPL 2.1. This effectively means that any code that is statically linked to GEOS must also be licensed as LGPL.
 
-## GeoRust?
+# GeoRust?
 
 I want to come back to GeoRust before closing my thoughts.
 
 A GeoArrow implementation could read geometries from WASM at [literally zero cost](https://observablehq.com/@kylebarron/zero-copy-apache-arrow-with-webassembly) possibly without even making a copy of the data back to JS.
 
-## Where to go from here
+# Where to go from here
 
 - I'd love to have
 
