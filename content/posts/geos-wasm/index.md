@@ -75,35 +75,17 @@ But my point is that by binding to Rust I got these performance optimizations fo
 
 Keep in mind that WebAssembly will not magically improve performance in all cases! A good case story here is Zaplib's post-mortem, which found [meager performance improvements](https://zaplib.com/docs/blog_post_mortem.html#js-vs-rust) in their specific use case.
 
-### So... Turf? JSTS?
+### So.. Should we bring a compiled geometry library to Wasm?
 
-<!-- Turf and JSTS absolutely have their use cases, but  -->
+I brought up the Parquet analogy above because I think it applies well to the geospatial context. Geo algorithms are complex; without diving into a computational geometry textbook I'd have no idea how to implement a [buffering algorithm](https://en.wikipedia.org/wiki/Buffer_analysis) from scratch.
 
-I brought up the Parquet analogy above because I think it applies well to the geospatial context. Without diving into a computational geometry textbook I'd have no idea how to implement a [buffering algorithm](https://en.wikipedia.org/wiki/Buffer_analysis) from scratch.
+Similar to Parquet, in geospatial we have core, low-level libraries that have done the hard work for us, and made it stable. [JTS](https://github.com/locationtech/jts) in Java and [GEOS](https://github.com/libgeos/geos) in C++ have existed for around two decades and are very stable! Essentially every geometry library in a higher level language is a binding to GEOS. E.g. Shapely in Python and `sf` in R. Rust has a burgeoning project, [GeoRust](https://georust.org/), that's excited to see on the horizon.
 
-In geospatial we really have two core libraries for geometry operations: [JTS](https://github.com/locationtech/jts) in Java and [GEOS](https://github.com/libgeos/geos) in C++.
+Turf and JSTS absolutely have their use cases. For one, they exist today! They're relatively widely used already! But it's also true that it's hard to maintain the core algorithms! Turf is an amazing library but its activity [seems to have waned over the years](https://github.com/Turfjs/turf/graphs/contributors).
 
-Similar to Parquet, we have three core libraries:  and GeoRust in Rust. (GeoRust is the youngest project and is missing some operations [like buffering](https://github.com/georust/geo/issues/641), but [many algorithms](https://docs.rs/geo/latest/geo/#algorithms) have been implemented, and it's my hope that the project will grow steadily).
+But looking down the road, I think there's absolutely a case to bring GEOS or GeoRust to Wasm. GEOS is and GeoRust has the potential to be rock-solid stable libraries. I would _suspect_ they both have potential for performance gains in Wasm over a JS library.
 
-Turf is an amazing library but doesn't appear to have a dedicated contributor base right now:
-
-![Screenshot of contributor activity on Turf.js](turf_contributor_graph.png)
-
-I don't know much about JSTS and I've never used it... Apparently it's automatically generated from the JTS source via AST translation. First, that sounds impressive in its own right, so credit where credit is due.
-
-
-On the performance front, I would _suspect_ that a WebAssembly geometry binding has potential for vast performance improvements over a pure-JS implementation:
-
-- GEOS has seen a ton of performance tuning over the years.
--
-- sd
-- Geometries could be represented
-
-, especially when operating on arrays of geometries and if represented in a binary format instead of as GeoJSON-like, which requires tons of small heap-allocated JS objects.
-
-There's also a ton of performance potential in using a binary geometry representation.
-
-Performance also has a ton of
+ <!-- that a WebAssembly geometry binding has potential for vast performance improvements over a pure-JS implementation. GEOS has seen a ton of performance tuning over the years. And a binary geometry representation that obviates the need for tons of small heap-allocated JS objects would help too. -->
 
 For the point of discussion, let's consider for now that we've decided to write GEOS bindings for WebAssembly. We'll come back to GeoRust at the end.
 
