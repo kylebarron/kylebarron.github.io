@@ -7,7 +7,7 @@ description: ...
 
 JavaScript is missing a battle-tested geometry engine that's performant at scale.
 
-Six months ago, Tom MacWright started a stub repository [`tmcw/geos-wasm`](https://github.com/tmcw/geos-wasm) on compiling GEOS to WebAssembly and exposing it as a library for JavaScript. On Tuesday, Christoph Pahmeyer [created an issue](https://github.com/tmcw/geos-wasm/issues/2) (enticingly titled "_`geos-wasm` - Is it worth the effort?_") and mentioned that he created a new repo [`chrispahm/geos-wasm`](https://github.com/chrispahm/geos-wasm) with a [full working demo](https://chrispahm.github.io/geos-wasm/) of GEOS' buffer function.
+Six months ago, Tom MacWright started a stub repository [`tmcw/geos-wasm`](https://github.com/tmcw/geos-wasm) on compiling GEOS to WebAssembly (Wasm) and exposing it as a library for JavaScript. On Tuesday, Christoph Pahmeyer [created an issue](https://github.com/tmcw/geos-wasm/issues/2) (enticingly titled "_`geos-wasm` - Is it worth the effort?_") and mentioned that he created a new repo [`chrispahm/geos-wasm`](https://github.com/chrispahm/geos-wasm) with a [full working demo](https://chrispahm.github.io/geos-wasm/) of GEOS' buffer function.
 
 That [nerdsniped](https://xkcd.com/356/) me, and here we are with a blog post! I'll start with why
 I'm a proponent of WebAssembly and then consider what bringing GEOS or something like it to the web
@@ -29,27 +29,21 @@ This is something I learned from the [Apache Parquet](https://parquet.apache.org
 Parquet is an incredibly complex format with scores of encodings, compressions, and types, including
 nested types. Pure-JavaScript implementations have been attempted over the years
 ([1](https://github.com/ironSource/parquetjs), [2](https://github.com/kbajalc/parquets)), but all
-have been abandoned or have serious bugs. It's no surprise either that endless subtle bugs requiring
-a deep understanding of the underlying data format would make the work brutal and lead to project
-burnout.
+that I know of have been abandoned. It's no surprise either that endless subtle bugs requiring a
+deep understanding of the underlying data format would make the work brutal and lead to project
+burnout. Writing a stable JS implementation would be a massive investment.
 
 It's my belief that for any project beyond a certain complexity, there should only be three core implementations:
 
 - One in C/C++ because C/C++ is today's de-facto performance-critical language, and it can bind to almost any other language.
-- One in Rust because removing memory errors brings so much potential and development speed to low-level code. I believe it's _tomorrow's_ performance-critical language.
+- One in Rust because removing memory errors brings so much potential and Rust's ergonomics bring impressive development velocity to low-level code. I believe it's _tomorrow's_ performance-critical language.
 - One in Java because the Java Virtual Machine makes it hard to interface with external C libraries (and it's _yesterday's_ performance-critical language?).
 
 ### From high-level languages, prefer bindings
 
-To me the core of Tom's reasoning above is
+<!-- To me the core of Tom's reasoning above is
 
-> [JSTS is] not exactly the same set of bugs as GEOS. If I have bugs, I want all of the GEOS things to have bugs! And the roaring success of, say, Shapely, indicates that GEOS's level of bugs is pretty tolerable.
-
-If we can
-When you reimplement
-
----
-
+> [JSTS is] not exactly the same set of bugs as GEOS. If I have bugs, I want all of the GEOS things to have bugs! And the roaring success of, say, Shapely, indicates that GEOS's level of bugs is pretty tolerable. -->
 
 For every other language and environment, the code should be a _binding_ to a core library because
 it takes such a huge investment to get to the stability of a core library. These other
@@ -58,22 +52,28 @@ reimplement the entire source in the target language.
 
 Keeping with the Parquet analogy above, there's a [core implementation in C++](https://github.com/apache/arrow/tree/main/cpp/src/parquet), [one in Java](https://github.com/apache/parquet-mr), and [another in Rust](https://github.com/apache/arrow-rs/tree/master/parquet). [^2] But virtually every other stable Parquet library is a binding to one of those. The Python and R Parquet implementations are bindings to the C++ one; my [WebAssembly Parquet implementation](https://github.com/kylebarron/parquet-wasm) uses the Rust one. [^1] A [Scala Parquet library](https://github.com/mjakubowski84/parquet4s) appears [to use](https://github.com/mjakubowski84/parquet4s/blob/f41ff6d4203e039a0e52c7d0d5648e24ece37706/build.sbt#L91-L93) the Java implementation.
 
+
+Additionally, by having fewer core implementations, it's possible to focus energy on solving bugs in those implementations where previously efforts might have been spread more thin.
+
+
 [^1]: Apparently, if you're using the _Arrow_ Java library, it actually [links to the C++ Parquet implementation](https://github.com/apache/arrow/blob/0344a2cdf6219708a25f39e580406e0ce692b61e/java/pom.xml#L1011-L1030) via the Java Native Interface (JNI) instead of using `parquet-mr`.
 
 [^2]: Well, actually there are [_two_ Rust implementations](https://github.com/jorgecarleitao/parquet2) for technical reasons, but they plan to [converge eventually](https://github.com/jorgecarleitao/arrow2/issues/1429).
 
 ### WebAssembly Performance
 
-Up until now I've focused on stability, but performance is crucial (TODO: change wording) as well. I think there are two main ways that WebAssembly can speed up code:
+Up until now I've focused on stability, but I believe that WebAssembly can bring a significant performance improvement, especially in specific cases:
 
-- If the WASM library is faster. If you're using a C or Rust library in WebAssembly and that's seen a lot more performance focus than your JS code, the WASM might be faster out of the box.
-- If you can use a binary data representation with [`ArrayBuffer`s](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) instead of small JS objects, getting data into and out of WebAssembly will be virtually free and you'll avoid tons of time in the garbage collector.
+- **A faster underlying library.** If you're using a C library that already sees very wide usage, it's probably seen a significant investment in performance compared to your plain-JS option.
+- **Avoiding the Garbage Collector.** If you can use a binary data representation with [`ArrayBuffer`s](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) instead of small JS objects, getting data into and out of WebAssembly will be virtually free and you'll avoid tons of time in the garbage collector.
+- **Vectorization.** If you're operating on arrays of values, just moving the for loop from JS to Wasm might be significantly faster. In Python I know making a hot loop compiled can be a >10x improvement; I'm not sure exactly what speedup is likely in JS.
+- **Computationally constrained.** Algorithms are good candidates for perf improvement; if your code touches the DOM or is reliant on network requests, it won't get any faster in Wasm.
 
-As an anecdotal example, last year I found that my WebAssembly Parquet reader was [_480x faster_](https://github.com/visgl/loaders.gl/issues/2144#issue-1198790864) than a pure-JavaScript Parquet reader. It was _so fast_ because I benefited from both of the reasons above. The Rust library I used had seen a focus on performance optimization and it loaded data into [Apache Arrow](https://arrow.apache.org/), a columnar, binary data format. In contrary, the JS library was newer and did a costly transpose from Parquet's native columnar layout to a row-based layout of pure-JS objects. But my point is that by binding to Rust I got these performance optimizations for free! I didn't have to put in a year of work; I got to such fast performance over a few weeks of hacking nights and weekends.
+As an anecdotal example, a quick test last year found that my Wasm Parquet reader was [**_480x faster_**](https://github.com/visgl/loaders.gl/issues/2144#issue-1198790864) than a pure-JavaScript Parquet reader. This speedup was so high because I benefited from all of the reasons above. The Rust library I used in Wasm had seen an investment on performance and it loaded data into [Apache Arrow](https://arrow.apache.org/), an efficient in-memory representation. In contrary, the JS library was newer and performed a costly transpose from Parquet's native columnar layout to an inefficient row-based layout of pure-JS objects.
 
-Keep in mind that WebAssembly is not guaranteed to magically improve performance! A good case story here is Zaplib's post-mortem, which found [meager performance improvements](https://zaplib.com/docs/blog_post_mortem.html#js-vs-rust) in their case. And if your WebAssembly code is interacting with the DOM, you likely won't get any speedup at all.
+But my point is that by binding to Rust I got these performance optimizations for free! I didn't have to put in a year of work; I got to such fast performance over a few weeks of hacking nights and weekends.
 
-My intuition is that code that's computationally-constrained and can take [`ArrayBuffer`s](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) as input and output has potential to be sped up in WebAssembly. Especially if you can vectorize the code by moving a loop out of JavaScript and into Wasm.
+Keep in mind that WebAssembly will not magically improve performance in all cases! A good case story here is Zaplib's post-mortem, which found [meager performance improvements](https://zaplib.com/docs/blog_post_mortem.html#js-vs-rust) in their specific use case.
 
 ### So... Turf? JSTS?
 
@@ -81,11 +81,11 @@ Geometry algorithms are incredibly complex. Without diving into a computational 
 
 Similar to Parquet, we have three core libraries: JTS in Java, GEOS in C++, and GeoRust in Rust. (GeoRust is the youngest project and is missing some operations [like buffering](https://github.com/georust/geo/issues/641), but [many algorithms](https://docs.rs/geo/latest/geo/#algorithms) have been implemented, and it's my hope that the project will grow steadily).
 
-Turf is an amazing library but doesn't appear to have a dedicated contributor base right now
+Turf is an amazing library but doesn't appear to have a dedicated contributor base right now:
 
-[Screenshot of turf activity]
+![Screenshot of contributor activity on Turf.js](turf_contributor_graph.png)
 
-I don't know much about JSTS and I've never used it... Apparently it's automatically generated from the JTS source via AST translation. First, that sounds impressive in its own right, so credit where credit is due to Björn Harrtell.
+I don't know much about JSTS and I've never used it... Apparently it's automatically generated from the JTS source via AST translation. First, that sounds impressive in its own right, so credit where credit is due.
 
 On the performance front, I would _suspect_ that a WebAssembly geometry binding has potential for vast performance improvements over a pure-JS implementation:
 
@@ -101,6 +101,8 @@ Performance also has a ton of
 For the point of discussion, let's consider for now that we've decided to write GEOS bindings for WebAssembly. We'll come back to GeoRust at the end.
 
 ## Implementation
+
+## Ease of binding
 
 ## Data Serialization is costly
 
@@ -167,11 +169,11 @@ My general goal in pushing and advocating for this tech stack is to create a sym
 To be clear, the time horizon to maturity is certainly longer for GeoRust and GeoArrow than for GEOS because the tech is so fresh. If you need something in the next 6 months, invest in geos-wasm. If you're looking a couple years down the road, maybe consider GeoRust.
 
 
-## Where to go from here
+## Where to go from here?
 
-So in conclusion... will I be spending my time writing GEOS bindings to Wasm? No, that's unlikely. But if I find time in the future, I'd jump on the chance to write bindings for georust that use geoarrow
+So in conclusion... will I be spending my time writing GEOS bindings to Wasm? No, that's unlikely. But if I find time in the future, I'd jump on the chance to bring GeoRust to the browser.
 
-
+Did the title end up being clickbait? :wink:
 
 I'll have more posts in the future to focus on geoarrow and georust.
 
