@@ -7,11 +7,11 @@ description: ...
 
 JavaScript is missing a battle-tested geometry engine that's performant at scale.
 
-Six months ago, Tom MacWright started a stub repository [`tmcw/geos-wasm`](https://github.com/tmcw/geos-wasm) on compiling GEOS to WebAssembly and exposing it as a library for JavaScript. Yesterday, Christoph Pahmeyer [created an issue](https://github.com/tmcw/geos-wasm/issues/2) (enticingly titled "_geos-wasm - Is it worth the effort?_") and mentioned that he created a new repo [`chrispahm/geos-wasm`](https://github.com/chrispahm/geos-wasm) with a [full working demo](https://chrispahm.github.io/geos-wasm/) of GEOS' buffer function.
+Six months ago, Tom MacWright started a stub repository [`tmcw/geos-wasm`](https://github.com/tmcw/geos-wasm) on compiling GEOS to WebAssembly and exposing it as a library for JavaScript. On Tuesday, Christoph Pahmeyer [created an issue](https://github.com/tmcw/geos-wasm/issues/2) (enticingly titled "_`geos-wasm` - Is it worth the effort?_") and mentioned that he created a new repo [`chrispahm/geos-wasm`](https://github.com/chrispahm/geos-wasm) with a [full working demo](https://chrispahm.github.io/geos-wasm/) of GEOS' buffer function.
 
 That [nerdsniped](https://xkcd.com/356/) me, and here we are with a blog post! I'll start with why
-I'm a proponent of WebAssembly and then consider what bringing efficient, stable computational
-primitives to the Wasm would look like.
+I'm a proponent of WebAssembly and then consider what bringing GEOS or something like it to the web
+would look like.
 
 # Why not Turf? JSTS?
 
@@ -140,6 +140,13 @@ I want to come back to GeoRust before closing my thoughts.
 A GeoArrow implementation could read geometries from WASM at [literally zero cost](https://observablehq.com/@kylebarron/zero-copy-apache-arrow-with-webassembly) possibly without even making a copy of the data back to JS.
 
 # Where to go from here
+
+So in conclusion... will I be spending my time writing GEOS bindings to Wasm? No, that's unlikely. But if I find time in the future, I'd jump on the chance to write bindings for georust that use geoarrow
+
+I'll have more posts in the future to focus on geoarrow and georust.
+
+Sorry for the clickbait? :joy:
+
 
 - I'd love to have
 
