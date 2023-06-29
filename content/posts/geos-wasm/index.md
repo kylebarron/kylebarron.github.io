@@ -77,9 +77,13 @@ Keep in mind that WebAssembly will not magically improve performance in all case
 
 ### So... Turf? JSTS?
 
-Geometry algorithms are incredibly complex. Without diving into a computational geometry textbook I'd have no idea how to implement a [buffering algorithm](https://en.wikipedia.org/wiki/Buffer_analysis) from scratch. So I think the Parquet analogy applies well.
+<!-- Turf and JSTS absolutely have their use cases, but  -->
 
-Similar to Parquet, we have three core libraries: JTS in Java, GEOS in C++, and GeoRust in Rust. (GeoRust is the youngest project and is missing some operations [like buffering](https://github.com/georust/geo/issues/641), but [many algorithms](https://docs.rs/geo/latest/geo/#algorithms) have been implemented, and it's my hope that the project will grow steadily).
+I brought up the Parquet analogy above because I think it applies well to the geospatial context. Without diving into a computational geometry textbook I'd have no idea how to implement a [buffering algorithm](https://en.wikipedia.org/wiki/Buffer_analysis) from scratch.
+
+In geospatial we really have two core libraries for geometry operations: [JTS](https://github.com/locationtech/jts) in Java and [GEOS](https://github.com/libgeos/geos) in C++.
+
+Similar to Parquet, we have three core libraries:  and GeoRust in Rust. (GeoRust is the youngest project and is missing some operations [like buffering](https://github.com/georust/geo/issues/641), but [many algorithms](https://docs.rs/geo/latest/geo/#algorithms) have been implemented, and it's my hope that the project will grow steadily).
 
 Turf is an amazing library but doesn't appear to have a dedicated contributor base right now:
 
@@ -87,8 +91,11 @@ Turf is an amazing library but doesn't appear to have a dedicated contributor ba
 
 I don't know much about JSTS and I've never used it... Apparently it's automatically generated from the JTS source via AST translation. First, that sounds impressive in its own right, so credit where credit is due.
 
+
 On the performance front, I would _suspect_ that a WebAssembly geometry binding has potential for vast performance improvements over a pure-JS implementation:
 
+- GEOS has seen a ton of performance tuning over the years.
+-
 - sd
 - Geometries could be represented
 
@@ -159,27 +166,17 @@ GeoRust is licensed as MIT, so there are no license concerns.
 
 ### But it's incomplete?
 
-Yes, it is incomplete! For example, GeoRust [doesn't currently have an implementation of buffering](https://github.com/georust/geo/issues/641) (as of June 2023). And surely other algorithms in GEOS haven't yet been ported. (Though [the algorithms that do exist](https://docs.rs/geo/latest/geo/#algorithms) are very high quality.)
+Yes, this is true, it is incomplete! For example, GeoRust [doesn't currently have an implementation of buffering](https://github.com/georust/geo/issues/641) (as of June 2023). And surely other algorithms in GEOS haven't yet been ported. (Though [the algorithms that do exist](https://docs.rs/geo/latest/geo/#algorithms) are very high quality.)
 
-That said...
-**I'm more bullish about the unrealized potential of GeoRust + GeoArrow applied to WebAssembly and Python than any other technology on the horizon today.**
+To be clear, the time horizon to maturity is certainly longer for GeoRust because it's newer.
+It will take GeoRust some time to catch up to the full suite of operations in JTS/GEOS, but I have faith in the project and the community that it will happen.
 
-My general goal in pushing and advocating for this tech stack is to create a symbiotic ecosystem with GeoRust. Just as GEOS sees development interest resulting from the huge number of downstream users in e.g. Shapely, so would GeoRust hopefully see more contributors if there were a larger transitive user base.
-
-To be clear, the time horizon to maturity is certainly longer for GeoRust and GeoArrow than for GEOS because the tech is so fresh. If you need something in the next 6 months, invest in geos-wasm. If you're looking a couple years down the road, maybe consider GeoRust.
-
+Ideally if more downstream projects pop up that use GeoRust, it will create a symbiotic relationship that's great for the whole ecosystem. Just as GEOS sees development interest resulting from the huge number of downstream users in e.g. Shapely, so would GeoRust hopefully see more contributors if there were a larger transitive user base.
 
 ## Where to go from here?
 
 So in conclusion... will I be spending my time writing GEOS bindings to Wasm? No, that's unlikely. But if I find time in the future, I'd jump on the chance to bring GeoRust to the browser.
 
-Did the title end up being clickbait? :wink:
+**I'm more bullish about the unrealized potential of GeoRust + GeoArrow applied to WebAssembly and Python than any other technology combination on the horizon today.**
 
-I'll have more posts in the future to focus on geoarrow and georust.
-
-
-
-- Getting
-- Boundaries are costly
-  - JS-wasm
-  - JS can read into a wasm buffer but wasm can't read into JS space.
+If you need something in the next 6 months, invest in geos-wasm. If you're looking a couple years down the road, maybe consider GeoRust.
