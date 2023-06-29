@@ -23,20 +23,21 @@ In Tom's repo he [wrote down some thoughts](https://github.com/tmcw/geos-wasm/bl
 >
 > That said, JSTS is large - we've been trying to remove it from Turf for years and years, and it's not exactly the same set of bugs as GEOS. If I have bugs, I want all of the GEOS things to have bugs! And the roaring success of, say, Shapely, indicates that GEOS's level of bugs is pretty tolerable.
 
-## _Ports of complex libraries are really hard!_
+## _Porting a complex library is really hard!_
 
 This is something I learned from the [Apache Parquet](https://parquet.apache.org/) ecosystem.
-Parquet is an incredibly complex format with scores of various encodings, compressions, and a large
-type system including nested types. Pure-JavaScript implementations have been attempted over the
-years ([1](https://github.com/ironSource/parquetjs), [2](https://github.com/kbajalc/parquets)), but
-endless subtle bugs that require a deep understanding of the underlying data format surely make the
-work brutal, and project burnout is unsurprising.
+Parquet is an incredibly complex format with scores of encodings, compressions, and types, including
+nested types. Pure-JavaScript implementations have been attempted over the years
+([1](https://github.com/ironSource/parquetjs), [2](https://github.com/kbajalc/parquets)), but all
+have been abandoned or have serious bugs. It's no surprise either that endless subtle bugs requiring
+a deep understanding of the underlying data format would make the work brutal and lead to project
+burnout.
 
 It's my belief that for any project beyond a certain complexity, there should only be three core implementations:
 
 - One in C/C++ because C/C++ is today's de-facto performance-critical language, and it can bind to almost any other language.
 - One in Rust because removing memory errors brings so much potential and development speed to low-level code. I believe it's _tomorrow's_ performance-critical language.
-- One in Java because the Java Virtual Machine makes it hard to interface with external C libraries (and it's _yesterday's_ performance-critical language? :joy:).
+- One in Java because the Java Virtual Machine makes it hard to interface with external C libraries (and it's _yesterday's_ performance-critical language?).
 
 ## From high-level languages, prefer bindings
 
