@@ -7,7 +7,7 @@ description: ...
 
 JavaScript is missing a battle-tested geometry engine that's performant at scale.
 
-Six months ago, Tom MacWright started a stub repository [`tmcw/geos-wasm`](https://github.com/tmcw/geos-wasm) on compiling GEOS to WebAssembly (Wasm) and exposing it as a library for JavaScript. On Tuesday, Christoph Pahmeyer [created an issue](https://github.com/tmcw/geos-wasm/issues/2) (enticingly titled "_`geos-wasm` - Is it worth the effort?_") and mentioned that he created a new repo [`chrispahm/geos-wasm`](https://github.com/chrispahm/geos-wasm) with a [full working demo](https://chrispahm.github.io/geos-wasm/) of GEOS' buffer function.
+Six months ago, Tom MacWright started a stub repository [`tmcw/geos-wasm`](https://github.com/tmcw/geos-wasm) on compiling GEOS to WebAssembly (Wasm) and exposing it as a library for JavaScript. On Tuesday, Christoph Pahmeyer [created an issue](https://github.com/tmcw/geos-wasm/issues/2) (enticingly titled "_`geos-wasm` - Is it worth the effort?_") and mentioned that he created a new repo [`chrispahm/geos-wasm`](https://github.com/chrispahm/geos-wasm) with a [full working demo](https://chrispahm.github.io/geos-wasm/) of GEOS' buffer function (check it out! It's cool!).
 
 That [nerdsniped](https://xkcd.com/356/) me, and here we are with a blog post! I'll start with why
 I'm a proponent of WebAssembly and then consider what bringing GEOS or something like it to the web
@@ -26,10 +26,10 @@ In Tom's repo he [wrote down some thoughts](https://github.com/tmcw/geos-wasm/bl
 ### _Porting a complex library is really hard!_
 
 This is something I learned from the [Apache Parquet](https://parquet.apache.org/) ecosystem.
-Parquet is an incredibly complex format with scores of encodings, compressions, and types, including
+Parquet is an incredibly complex file format with scores of encodings, compressions, and types, including
 nested types. Pure-JavaScript implementations have been attempted over the years
 ([1](https://github.com/ironSource/parquetjs), [2](https://github.com/kbajalc/parquets)), but all
-that I know of have been abandoned. It's no surprise either that endless subtle bugs requiring a
+have been abandoned. It's no surprise either that endless subtle bugs requiring a
 deep understanding of the underlying data format would make the work brutal and lead to project
 burnout. Writing a stable JS implementation would be a massive investment.
 
@@ -39,31 +39,31 @@ It's my belief that for any project beyond a certain complexity, there should on
 - One in Rust because removing memory errors brings so much potential and Rust's ergonomics bring impressive development velocity to low-level code. I believe it's _tomorrow's_ performance-critical language.
 - One in Java because the Java Virtual Machine makes it hard to interface with external C libraries (and it's _yesterday's_ performance-critical language?).
 
-### From high-level languages, prefer bindings
+### In high-level languages, prefer bindings
 
 <!-- To me the core of Tom's reasoning above is
 
 > [JSTS is] not exactly the same set of bugs as GEOS. If I have bugs, I want all of the GEOS things to have bugs! And the roaring success of, say, Shapely, indicates that GEOS's level of bugs is pretty tolerable. -->
 
 For every other language and environment, the code should be a _binding_ to a core library because
-it takes such a huge investment to get to the stability of a core library. These other
+it takes such a huge investment to reach the stability of a core library. These other
 implementations should choose one of the above and _link_ to it for the core algorithms rather than
 reimplement the entire source in the target language.
 
-Keeping with the Parquet analogy above, there's a [core implementation in C++](https://github.com/apache/arrow/tree/main/cpp/src/parquet), [one in Java](https://github.com/apache/parquet-mr), and [another in Rust](https://github.com/apache/arrow-rs/tree/master/parquet). [^2] But virtually every other stable Parquet library is a binding to one of those. The Python and R Parquet implementations are bindings to the C++ one; my [WebAssembly Parquet implementation](https://github.com/kylebarron/parquet-wasm) uses the Rust one. [^1] A [Scala Parquet library](https://github.com/mjakubowski84/parquet4s) appears [to use](https://github.com/mjakubowski84/parquet4s/blob/f41ff6d4203e039a0e52c7d0d5648e24ece37706/build.sbt#L91-L93) the Java implementation.
+Keeping with the Parquet analogy above, there's a [core implementation in C++](https://github.com/apache/arrow/tree/main/cpp/src/parquet), [one in Java](https://github.com/apache/parquet-mr), and [another in Rust](https://github.com/apache/arrow-rs/tree/master/parquet). [^1] But virtually every other stable Parquet library is a binding to one of those. The Python and R Parquet implementations are bindings to the C++ one; my [WebAssembly Parquet implementation](https://github.com/kylebarron/parquet-wasm) uses the Rust one. [^2] A [Scala Parquet library](https://github.com/mjakubowski84/parquet4s) appears [to use](https://github.com/mjakubowski84/parquet4s/blob/f41ff6d4203e039a0e52c7d0d5648e24ece37706/build.sbt#L91-L93) the Java implementation.
 
-Additionally, by having fewer core implementations, it's possible to focus energy on solving bugs in those implementations where previously efforts might have been spread more thin.
+Additionally, by having fewer core implementations, it's possible to focus energy on solving bugs in those, where previously efforts might have been spread more thin.
 
-[^1]: Apparently, if you're using the _Arrow_ Java library, it actually [links to the C++ Parquet implementation](https://github.com/apache/arrow/blob/0344a2cdf6219708a25f39e580406e0ce692b61e/java/pom.xml#L1011-L1030) via the Java Native Interface (JNI) instead of using `parquet-mr`.
+[^1]: Well, actually there are [_two_ Rust implementations](https://github.com/jorgecarleitao/parquet2) for technical reasons, but they plan to [converge eventually](https://github.com/jorgecarleitao/arrow2/issues/1429).
 
-[^2]: Well, actually there are [_two_ Rust implementations](https://github.com/jorgecarleitao/parquet2) for technical reasons, but they plan to [converge eventually](https://github.com/jorgecarleitao/arrow2/issues/1429).
+[^2]: Apparently, if you're using the _Arrow_ Java library, it actually [links to the C++ Parquet implementation](https://github.com/apache/arrow/blob/0344a2cdf6219708a25f39e580406e0ce692b61e/java/pom.xml#L1011-L1030) via the Java Native Interface (JNI) instead of using `parquet-mr`.
 
 ### WebAssembly Performance
 
 Up until now I've focused on stability, but I believe that WebAssembly can bring a significant performance improvement, especially in specific cases:
 
 - **A faster underlying library.** If you're using a C library that already sees very wide usage, it's probably seen a significant investment in performance compared to your plain-JS option.
-- **Data can be serialized as binary.** If you can use a binary data representation with [`ArrayBuffer`s](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) instead of small JS objects, getting data into and out of WebAssembly will be virtually free and you'll avoid tons of time in the garbage collector.
+- **Binary data representation.** If you can avoid serializing JS objects by using a binary data representation with [`ArrayBuffer`s](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) instead of small JS objects, getting data into and out of WebAssembly will be much cheaper and you'll avoid tons of time in the garbage collector.
 - **Vectorization.** If you're operating on arrays of values, just moving the for loop from JS to Wasm might be significantly faster. In Python I know making a hot loop compiled can be a >10x improvement; I'm not sure exactly what speedup is likely in JS.
 - **Computationally constrained.** Algorithms are good candidates for perf improvement; if your code touches the DOM or is reliant on network requests, it won't get any faster in Wasm.
 
@@ -77,11 +77,11 @@ Keep in mind that WebAssembly will not magically improve performance in all case
 
 I brought up the Parquet analogy above because I think it applies well to the geospatial context. Geo algorithms are complex; without diving into a computational geometry textbook I'd have no idea how to implement a [buffering algorithm](https://en.wikipedia.org/wiki/Buffer_analysis) from scratch.
 
-Similar to Parquet, in geospatial we have core, low-level libraries that have done the hard work for us, and made it stable. [JTS](https://github.com/locationtech/jts) in Java and [GEOS](https://github.com/libgeos/geos) in C++ have existed for around two decades and are very stable! Essentially every geometry library in a higher level language is a binding to GEOS. E.g. Shapely in Python and `sf` in R. Rust has a burgeoning project, [GeoRust](https://georust.org/), that will get more stable over time.
+Similar to Parquet, in geospatial we have core, low-level libraries that have done the hard work for us. [JTS](https://github.com/locationtech/jts) in Java and [GEOS](https://github.com/libgeos/geos) in C++ have existed for around two decades and are very stable! Essentially every geometry library in a higher level language is a binding to GEOS. E.g. Shapely in Python and `sf` in R. Rust has a burgeoning project, [GeoRust](https://georust.org/), that will get more stable over time.
 
-Turf and JSTS absolutely have their use cases. For one, they exist today! They're relatively widely used already! But it's also true that it's hard to maintain the core algorithms! Turf is an amazing library but its activity [seems to have waned over the years](https://github.com/Turfjs/turf/graphs/contributors).
+Turf and JSTS absolutely have their use cases. For one, they exist today! They're relatively widely used already! But they're also hard to maintain; Turf's activity and contributor base [seem to have waned over the years](https://github.com/Turfjs/turf/graphs/contributors).
 
-But looking down the road, I think there's absolutely a case to bring GEOS or GeoRust to Wasm. GEOS is and GeoRust has the potential to be rock-solid stable libraries. I would _suspect_ they both have potential for performance gains in Wasm over a JS library.
+Looking down the road, I think there's absolutely a case to bring GEOS or GeoRust to Wasm. GEOS is and GeoRust has the potential to be rock-solid stable libraries. I would _suspect_ they both have potential for performance gains in Wasm over a JS library.
 
 <!-- that a WebAssembly geometry binding has potential for vast performance improvements over a pure-JS implementation. GEOS has seen a ton of performance tuning over the years. And a binary geometry representation that obviates the need for tons of small heap-allocated JS objects would help too. -->
 
@@ -91,9 +91,7 @@ For the point of discussion, let's consider for now that we've decided to write 
 
 ### Ease of binding
 
-GEOS is written in C++, which means that the usual way to compile it to WebAssembly is to use [Emscripten](https://emscripten.org/).
-
-In terms of implementation, Christoph's prototype looks like the way to go. You have to tell emscripten to [expose the underlying C functions](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/GEOS_EMCC_FLAGS.mk#L25-L35) publicly from the Wasm module. Then [register those functions](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/src/allCFunctions.mjs#L11-L24) from JS.
+GEOS is written in C++, which means that the usual way to compile it to WebAssembly is to use [Emscripten](https://emscripten.org/). In terms of implementation, Christoph's prototype looks like the way to go. You have to tell emscripten to [expose the underlying C functions](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/GEOS_EMCC_FLAGS.mk#L25-L35) publicly from the Wasm module. Then [register those functions](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/src/allCFunctions.mjs#L11-L24) from JS.
 
 But at that point you're stuck dealing with low level C functions and managing raw pointers. E.g. to buffer a geometry you have to [instantiate the GEOS Geometry object](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/src/allJsFunctions/Buffer.mjs#L182), [call the GEOS buffer operation](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/src/allJsFunctions/Buffer.mjs#L185-L189), and then remember to free the memory later. It's a very manual process and, indeed, quite error prone.
 
