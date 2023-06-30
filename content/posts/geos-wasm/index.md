@@ -75,11 +75,11 @@ But my point is that by binding to Rust I got these performance optimizations fo
 
 Keep in mind that WebAssembly will not magically improve performance in all cases! A good case story here is Zaplib's post-mortem, which found [meager performance improvements](https://zaplib.com/docs/blog_post_mortem.html#js-vs-rust) in their specific use case.
 
-### So.. Should we bring a compiled geometry library to Wasm?
+### So.. Should we bring GEOS to Wasm?
 
 I brought up the Parquet analogy above because I think it applies well to the geospatial context. Geo algorithms are complex; without diving into a computational geometry textbook I'd have no idea how to implement a [buffering algorithm](https://en.wikipedia.org/wiki/Buffer_analysis) from scratch.
 
-Similar to Parquet, in geospatial we have core, low-level libraries that have done the hard work for us, and made it stable. [JTS](https://github.com/locationtech/jts) in Java and [GEOS](https://github.com/libgeos/geos) in C++ have existed for around two decades and are very stable! Essentially every geometry library in a higher level language is a binding to GEOS. E.g. Shapely in Python and `sf` in R. Rust has a burgeoning project, [GeoRust](https://georust.org/), that's excited to see on the horizon.
+Similar to Parquet, in geospatial we have core, low-level libraries that have done the hard work for us, and made it stable. [JTS](https://github.com/locationtech/jts) in Java and [GEOS](https://github.com/libgeos/geos) in C++ have existed for around two decades and are very stable! Essentially every geometry library in a higher level language is a binding to GEOS. E.g. Shapely in Python and `sf` in R. Rust has a burgeoning project, [GeoRust](https://georust.org/), that will get more stable over time.
 
 Turf and JSTS absolutely have their use cases. For one, they exist today! They're relatively widely used already! But it's also true that it's hard to maintain the core algorithms! Turf is an amazing library but its activity [seems to have waned over the years](https://github.com/Turfjs/turf/graphs/contributors).
 
@@ -89,11 +89,34 @@ But looking down the road, I think there's absolutely a case to bring GEOS or Ge
 
 For the point of discussion, let's consider for now that we've decided to write GEOS bindings for WebAssembly. We'll come back to GeoRust at the end.
 
-## Implementation
+## Implementing GEOS in WebAssembly
 
-## Ease of binding
+### Ease of binding
 
-## Data Serialization is costly
+GEOS is written in C++, which means that the way to compile it to WebAssembly is to use [Emscripten](https://emscripten.org/).
+
+In terms of implementation, Christoph's prototype looks like the way to go. You have to tell emscripten to [expose the underlying C functions](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/GEOS_EMCC_FLAGS.mk#L25-L35) publicly from the Wasm module. Then [register those functions](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/src/allCFunctions.mjs#L11-L24) from JS.
+
+But at that point you're stuck dealing with low level C functions and managing raw pointers. E.g. to buffer a geometry you have to [instantiate the GEOS Geometry object](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/src/allJsFunctions/Buffer.mjs#L182), [call the GEOS buffer operation](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/src/allJsFunctions/Buffer.mjs#L185-L189), and then remember to free the memory later. It's a very manual process and, indeed, quite error prone.
+
+As Christoph [notes](https://github.com/chrispahm/geos-wasm#background)
+
+> What I naïvely expected was that once you'd get GEOS to compile to WASM, you'd automatically be able to use its functions from within JS. But that's not the case. You still need to manually expose each function you'd want to use, define the parameters and return types, allocate memory and clean up after yourself. This is a lot of work and it's far too easy to mess up and produce code that is much slower than necessary when you're not skilled enough in C. Plus, it misses the original idea of having code which is close to the source. Since we're writing the wrapper functions, there's now another layer that potentially introduces bugs, and most importantly, that needs to be maintained.
+
+Yep, that's very on the nose! The difficulty of writing bindings depends on whether you want to make it easy for yourself, the developer, or easy for the user! You could expose a very low level API that forces the user to manage pointers, or put effort into writing user-friendly high-level functions.
+
+This is akin to the [GDAL Python bindings](https://gdal.org/api/python_bindings.html) vs the [Fiona library](https://github.com/Toblerity/Fiona). They both bind to GDAL's vector IO, but the latter is much higher level than the former because Fiona's developers put in the work to abstract away the C interface, and so Fiona is much easier to use.
+
+### Performance
+
+#### Vectorization
+
+shapely 2 is much faster than shapely 1 because it's vectorized.
+
+To do that in Wasm would mean you'd have an array of heap allocated pointers in Wasm memory space.
+
+
+#### Serialization is costly
 
 In many environmentrs you have to consider the cost of moving objects across a boundary.
 
@@ -103,7 +126,7 @@ In many environmentrs you have to consider the cost of moving objects across a b
   - additionally, wasm doesn't come with its own allocator. This means that
 
 
-### Moving data across the WASM boundary
+#### Moving data across the WASM boundary
 
 Moving data between JS and Wasm in effect acts the same as moving data between JS and a Web Worker. There are two options:
 
@@ -135,12 +158,19 @@ I want to come back to GeoRust before closing my thoughts.
 
 A GeoArrow implementation could read geometries from WASM at [literally zero cost](https://observablehq.com/@kylebarron/zero-copy-apache-arrow-with-webassembly) possibly without even making a copy of the data back to JS.
 
+Let's look at each of the above sections and see how
+
 ### Moving data across the WASM boundary
 
 I said above "if only there was some standardized binary format for arrays of geometries".
 
 Here GeoArrow makes moving data into Wasm extremely cheap and reading it out of WASM virtually free. Because Arrow has the _exact same memory layout_ in every implementation, it enables JavaScript to [correctly interpret memory from the WebAssembly memory space](https://observablehq.com/@kylebarron/zero-copy-apache-arrow-with-webassembly) _without any serialization_, even avoiding a copy in some cases. Then in turn we can [visualize the GeoArrow arrays in deck.gl](https://observablehq.com/@kylebarron/geoarrow-and-geoparquet-in-deck-gl) with only a copy to the GPU.
 
+### Ease of binding
+
+WebAssembly was one of the original use cases for Rust at Mozilla, so unsurprisingly Rust is extremely well suited for Wasm. If your dependencies are pure-Rust, all it takes is a `wasm-pack build` and you have your bundle! C dependencies from Rust can get hairy, but since GeoRust is pure Rust, this is not an issue.
+
+And since the compiler verifies the safety of your code at compile time, if it compiled, it's very likely to work out of the box in JS!
 
 ### Licensing
 
@@ -157,8 +187,9 @@ Ideally if more downstream projects pop up that use GeoRust, it will create a sy
 
 ## Where to go from here?
 
-So in conclusion... will I be spending my time writing GEOS bindings to Wasm? No, that's unlikely. But if I find time in the future, I'd jump on the chance to bring GeoRust to the browser.
+So in conclusion... will I be spending my time writing GEOS bindings to Wasm? No, that's unlikely. (Also I don't know C!) But if I find time in the future, I'd jump on the chance to bring GeoRust to the browser.
 
+The truth is,
 **I'm more bullish about the unrealized potential of GeoRust + GeoArrow applied to WebAssembly and Python than any other technology combination on the horizon today.**
 
 If you need something in the next 6 months, invest in geos-wasm. If you're looking a couple years down the road, maybe consider GeoRust.
