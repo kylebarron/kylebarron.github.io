@@ -7,7 +7,7 @@ description: ...
 
 JavaScript is missing a battle-tested geometry engine that's performant at scale.
 
-Six months ago, Tom MacWright started a stub repository [`tmcw/geos-wasm`](https://github.com/tmcw/geos-wasm) on compiling GEOS to WebAssembly (Wasm) and exposing it as a library for JavaScript. On Tuesday, Christoph Pahmeyer [created an issue](https://github.com/tmcw/geos-wasm/issues/2) (enticingly titled "_`geos-wasm` - Is it worth the effort?_") and mentioned that he created a new repo [`chrispahm/geos-wasm`](https://github.com/chrispahm/geos-wasm) with a [full working demo](https://chrispahm.github.io/geos-wasm/) of GEOS' buffer function (check it out! It's cool!).
+Six months ago, Tom MacWright started a stub repository [`tmcw/geos-wasm`](https://github.com/tmcw/geos-wasm) on compiling [GEOS](https://github.com/libgeos/geos) to WebAssembly (Wasm) and exposing it as a library for JavaScript. On Tuesday, Christoph Pahmeyer [created an issue](https://github.com/tmcw/geos-wasm/issues/2) (enticingly titled "_`geos-wasm` - Is it worth the effort?_") and mentioned that he created a new repo [`chrispahm/geos-wasm`](https://github.com/chrispahm/geos-wasm) with a [full working demo](https://chrispahm.github.io/geos-wasm/) of GEOS' buffer function (check it out! It's cool!).
 
 That [nerdsniped](https://xkcd.com/356/) me, and here we are with a blog post! I'll start with why
 I'm a proponent of WebAssembly and then consider what bringing GEOS or something like it to the web
