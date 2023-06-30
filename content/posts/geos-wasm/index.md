@@ -151,30 +151,36 @@ significantly decrease the potential audience of the project.
 
 ## GeoRust?
 
-I want to come back to GeoRust before closing my thoughts, because I'm really excited about it. Let's look at each of the points above and consider how they'd be different with GeoRust.
-
-A GeoArrow implementation could read geometries from WASM at [literally zero cost](https://observablehq.com/@kylebarron/zero-copy-apache-arrow-with-webassembly) possibly without even making a copy of the data back to JS.
-
-Let's look at each of the above sections and see how
-
-### Moving data across the WASM boundary
-
-Above I said
-
-> when every part of the process needs a different memory representation, the interchange between each is going to have overhead
-
-This is why having a binary geometry encoding is so valuable. It's free to move across thread boundaries.
-
-
-I said above "if only there was some standardized binary format for arrays of geometries".
-
-Here GeoArrow makes moving data into Wasm extremely cheap and reading it out of WASM virtually free. Because Arrow has the _exact same memory layout_ in every implementation, it enables JavaScript to [correctly interpret memory from the WebAssembly memory space](https://observablehq.com/@kylebarron/zero-copy-apache-arrow-with-webassembly) _without any serialization_, even avoiding a copy in some cases. Then in turn we can [visualize the GeoArrow arrays in deck.gl](https://observablehq.com/@kylebarron/geoarrow-and-geoparquet-in-deck-gl) with only a copy to the GPU.
+I want to come back to GeoRust before closing my thoughts, because I'm really excited about its potential. Let's look at each of the points above and consider how using GeoRust might impact them.
 
 ### Ease of binding
 
 WebAssembly was one of the original use cases for Rust at Mozilla, so unsurprisingly Rust is extremely well suited for Wasm. If your dependencies are pure-Rust, all it takes is a `wasm-pack build` and you have your bundle! C dependencies from Rust can get hairy, but since GeoRust is pure Rust, this is not an issue.
 
 And since the compiler verifies the safety of your code at compile time, if it compiled, it's very likely to work out of the box in JS!
+
+### Performance
+
+#### Serialization
+
+[Above I said](#serialization-is-costly):
+
+> when every part of the process needs a different memory representation, the interchange between each is going to have overhead
+
+To get around this, we need to have every step of the process use the same memory representation! This why I believe so strongly in [GeoArrow](https://github.com/geoarrow/geoarrow). It defines a single memory layout that is usable _across languages_. Because Arrow has the _exact same memory layout_ in every implementation, it enables JavaScript to [correctly interpret memory from the WebAssembly memory space](https://observablehq.com/@kylebarron/zero-copy-apache-arrow-with-webassembly) _without any serialization_, even avoiding a copy in some cases. Then in turn we can [visualize the GeoArrow arrays in deck.gl](https://observablehq.com/@kylebarron/geoarrow-and-geoparquet-in-deck-gl) with only a copy to the GPU.
+
+Rust has a feature called [_traits_](https://doc.rust-lang.org/book/ch10-02-traits.html). Essentially a way to define that any object out there — even one a library author has never seen before — that supplies a set of pre-defined methods can be used with the same algorithms. What this means is that if we define a common trait for how GeoRust accesses coordinate data from geometries, then GeoRust's algorithms could operate on GeoArrow memory without any serialization!
+
+I've been [slowly pushing this along](https://github.com/georust/geo/pull/1011) in GeoRust. It'll take a while to figure out how to adapt GeoRust's algorithms for the trait model, but if it works out it'll make things really fast and memory efficient.
+
+
+<!-- A GeoArrow implementation could read geometries from Wasm memory at [virtually zero cost](https://observablehq.com/@kylebarron/zero-copy-apache-arrow-with-webassembly), possibly without even making a copy of the data back to JS.
+
+
+This is why having a binary geometry encoding is so valuable. It's free to move across thread boundaries.
+
+
+Here GeoArrow makes moving data into Wasm extremely cheap and reading it out of WASM virtually free.  -->
 
 ### Licensing
 
