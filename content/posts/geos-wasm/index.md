@@ -133,18 +133,13 @@ In Christoph's prototype, it:
 
 This is _hugely inefficient_. That's not to say there's an easy way around it! Using WKB instead of WKT would probably provide a small speedup, but when every part of the process needs a different memory representation, the interchange between each is going to have overhead!
 
-
-This is why having a binary geometry encoding is so valuable. It's free to move across thread boundaries.
-
-
- it serializes every GeoJSON object to WKT, then passes the WKT to GEOS
-
 #### Vectorization
 
-shapely 2 is much faster than shapely 1 because it's vectorized.
+Pretty much any binding that operates on _individual_ items at a time will be slow. Shapely version 2 is _much, much_ faster than Shapely version 1 because it's vectorized. That is, it operates on arrays of objects at a time instead of one at a time.
 
-To do that in Wasm would mean you'd have an array of heap allocated pointers in Wasm memory space.
+I doubt GEOS would ever be faster than JSTS or Turf for single geometries because the constant portion of overhead can't be amortized across a bunch of computations.
 
+To make GEOS vectorized in Wasm would mean you'd have an array of heap allocated pointers in Wasm memory space. It could definitely be done but it would require extra binding code on the C side to provide vectorized functions.
 
 ### Licensing
 
@@ -156,7 +151,7 @@ significantly decrease the potential audience of the project.
 
 ## GeoRust?
 
-I want to come back to GeoRust before closing my thoughts.
+I want to come back to GeoRust before closing my thoughts, because I'm really excited about it. Let's look at each of the points above and consider how they'd be different with GeoRust.
 
 A GeoArrow implementation could read geometries from WASM at [literally zero cost](https://observablehq.com/@kylebarron/zero-copy-apache-arrow-with-webassembly) possibly without even making a copy of the data back to JS.
 
@@ -167,6 +162,9 @@ Let's look at each of the above sections and see how
 Above I said
 
 > when every part of the process needs a different memory representation, the interchange between each is going to have overhead
+
+This is why having a binary geometry encoding is so valuable. It's free to move across thread boundaries.
+
 
 I said above "if only there was some standardized binary format for arrays of geometries".
 
