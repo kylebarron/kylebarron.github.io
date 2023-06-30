@@ -1,6 +1,6 @@
 ---
 title: Thoughts on GEOS in WebAssembly
-date: 2023-06-28
+date: 2023-06-30
 slug: /blog/geos-wasm
 description: ...
 ---
