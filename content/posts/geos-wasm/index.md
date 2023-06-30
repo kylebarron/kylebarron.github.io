@@ -52,9 +52,7 @@ reimplement the entire source in the target language.
 
 Keeping with the Parquet analogy above, there's a [core implementation in C++](https://github.com/apache/arrow/tree/main/cpp/src/parquet), [one in Java](https://github.com/apache/parquet-mr), and [another in Rust](https://github.com/apache/arrow-rs/tree/master/parquet). [^2] But virtually every other stable Parquet library is a binding to one of those. The Python and R Parquet implementations are bindings to the C++ one; my [WebAssembly Parquet implementation](https://github.com/kylebarron/parquet-wasm) uses the Rust one. [^1] A [Scala Parquet library](https://github.com/mjakubowski84/parquet4s) appears [to use](https://github.com/mjakubowski84/parquet4s/blob/f41ff6d4203e039a0e52c7d0d5648e24ece37706/build.sbt#L91-L93) the Java implementation.
 
-
 Additionally, by having fewer core implementations, it's possible to focus energy on solving bugs in those implementations where previously efforts might have been spread more thin.
-
 
 [^1]: Apparently, if you're using the _Arrow_ Java library, it actually [links to the C++ Parquet implementation](https://github.com/apache/arrow/blob/0344a2cdf6219708a25f39e580406e0ce692b61e/java/pom.xml#L1011-L1030) via the Java Native Interface (JNI) instead of using `parquet-mr`.
 
@@ -65,7 +63,7 @@ Additionally, by having fewer core implementations, it's possible to focus energ
 Up until now I've focused on stability, but I believe that WebAssembly can bring a significant performance improvement, especially in specific cases:
 
 - **A faster underlying library.** If you're using a C library that already sees very wide usage, it's probably seen a significant investment in performance compared to your plain-JS option.
-- **Avoiding the Garbage Collector.** If you can use a binary data representation with [`ArrayBuffer`s](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) instead of small JS objects, getting data into and out of WebAssembly will be virtually free and you'll avoid tons of time in the garbage collector.
+- **Data can be serialized as binary.** If you can use a binary data representation with [`ArrayBuffer`s](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) instead of small JS objects, getting data into and out of WebAssembly will be virtually free and you'll avoid tons of time in the garbage collector.
 - **Vectorization.** If you're operating on arrays of values, just moving the for loop from JS to Wasm might be significantly faster. In Python I know making a hot loop compiled can be a >10x improvement; I'm not sure exactly what speedup is likely in JS.
 - **Computationally constrained.** Algorithms are good candidates for perf improvement; if your code touches the DOM or is reliant on network requests, it won't get any faster in Wasm.
 
@@ -85,7 +83,7 @@ Turf and JSTS absolutely have their use cases. For one, they exist today! They'r
 
 But looking down the road, I think there's absolutely a case to bring GEOS or GeoRust to Wasm. GEOS is and GeoRust has the potential to be rock-solid stable libraries. I would _suspect_ they both have potential for performance gains in Wasm over a JS library.
 
- <!-- that a WebAssembly geometry binding has potential for vast performance improvements over a pure-JS implementation. GEOS has seen a ton of performance tuning over the years. And a binary geometry representation that obviates the need for tons of small heap-allocated JS objects would help too. -->
+<!-- that a WebAssembly geometry binding has potential for vast performance improvements over a pure-JS implementation. GEOS has seen a ton of performance tuning over the years. And a binary geometry representation that obviates the need for tons of small heap-allocated JS objects would help too. -->
 
 For the point of discussion, let's consider for now that we've decided to write GEOS bindings for WebAssembly. We'll come back to GeoRust at the end.
 
@@ -93,13 +91,13 @@ For the point of discussion, let's consider for now that we've decided to write 
 
 ### Ease of binding
 
-GEOS is written in C++, which means that the way to compile it to WebAssembly is to use [Emscripten](https://emscripten.org/).
+GEOS is written in C++, which means that the usual way to compile it to WebAssembly is to use [Emscripten](https://emscripten.org/).
 
 In terms of implementation, Christoph's prototype looks like the way to go. You have to tell emscripten to [expose the underlying C functions](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/GEOS_EMCC_FLAGS.mk#L25-L35) publicly from the Wasm module. Then [register those functions](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/src/allCFunctions.mjs#L11-L24) from JS.
 
 But at that point you're stuck dealing with low level C functions and managing raw pointers. E.g. to buffer a geometry you have to [instantiate the GEOS Geometry object](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/src/allJsFunctions/Buffer.mjs#L182), [call the GEOS buffer operation](https://github.com/chrispahm/geos-wasm/blob/71366852768c105f701e351d17ca90ea4809409f/src/allJsFunctions/Buffer.mjs#L185-L189), and then remember to free the memory later. It's a very manual process and, indeed, quite error prone.
 
-As Christoph [notes](https://github.com/chrispahm/geos-wasm#background)
+As Christoph [notes](https://github.com/chrispahm/geos-wasm#background):
 
 > What I naïvely expected was that once you'd get GEOS to compile to WASM, you'd automatically be able to use its functions from within JS. But that's not the case. You still need to manually expose each function you'd want to use, define the parameters and return types, allocate memory and clean up after yourself. This is a lot of work and it's far too easy to mess up and produce code that is much slower than necessary when you're not skilled enough in C. Plus, it misses the original idea of having code which is close to the source. Since we're writing the wrapper functions, there's now another layer that potentially introduces bugs, and most importantly, that needs to be maintained.
 
@@ -109,40 +107,44 @@ This is akin to the [GDAL Python bindings](https://gdal.org/api/python_bindings.
 
 ### Performance
 
+Christoph further [notes](https://github.com/chrispahm/geos-wasm#background):
+
+> And the buffer function is not faster than turf's, at least not in the tests I ran. I guess this is mostly due to the fact that I'm currently serialzing the GeoJSON geometry to WKT, then passing it to the WASM context, running the buffer op and then doing the same thing backwards. This is a lot of overhead, and I haven't come up with a way to avoid it.
+
+#### Serialization is costly!
+
+In any binding you have to consider the cost of moving objects across the C boundary and ideally figure out ways to reduce it.
+
+In Python, Python objects can read outside memory not defined by Python, and non-Python code can read Python objects (as long as it acquires the Global Interpreter Lock).
+
+But WebAssembly is _more constrained_ than Python. While it's possible (though complex) for JavaScript to read objects from the Wasm memory space directly, the Wasm memory is sandboxed! This means that Wasm can't read _JavaScript's_ memory directly; rather any data required by the Wasm program must be copied from JS.
+
+Moving data between JS and Wasm is in effect the same as moving data between JS and a Web Worker. There are two options:
+
+- A ["structured clone"](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone). This is able to copy virtually any JS object, but it's expensive; akin to `JSON.stringify`.
+- However some objects are [_transferable_](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects). This means that they can be shared _freely_ either between the main thread and a web worker or, in this case, across the Wasm boundary. Transfering an object is free because it's essentially just changing the ownership of a pointer. This also means that [few objects](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects#supported_objects) meet this criteria: mainly just `ArrayBuffer`s.
+
+In Christoph's prototype, it:
+
+- Uses a JS library to [serialize every input GeoJSON to WKT](https://github.com/chrispahm/geos-wasm/blob/8c2679536bd33205377b6359a2e7bdc03d69db14/src/allJsFunctions/Buffer.mjs#L182).
+- Then [passes the WKT string to `GEOSGeomFromWKT`](https://github.com/chrispahm/geos-wasm/blob/8c2679536bd33205377b6359a2e7bdc03d69db14/src/allJsFunctions/Buffer.mjs#L182). This first copies the string to Wasm memory using a structured clone. Then GEOS parses the WKT into a GEOS object and returns to JS the pointer in Wasm memory to the GEOS object.
+- Then after the GEOS operation, it [passes the pointer of the new GEOS object](https://github.com/chrispahm/geos-wasm/blob/8c2679536bd33205377b6359a2e7bdc03d69db14/src/allJsFunctions/Buffer.mjs#L195) to `GEOSGeomToWKT`. This does the reverse of the last point: it encodes into a WKT string, then copies that string out of Wasm memory back to JS.
+- Then [decodes the WKT back to a GeoJSON](https://github.com/chrispahm/geos-wasm/blob/8c2679536bd33205377b6359a2e7bdc03d69db14/src/allJsFunctions/Buffer.mjs#L195).
+
+This is _hugely inefficient_. That's not to say there's an easy way around it! Using WKB instead of WKT would probably provide a small speedup, but when every part of the process needs a different memory representation, the interchange between each is going to have overhead!
+
+
+This is why having a binary geometry encoding is so valuable. It's free to move across thread boundaries.
+
+
+ it serializes every GeoJSON object to WKT, then passes the WKT to GEOS
+
 #### Vectorization
 
 shapely 2 is much faster than shapely 1 because it's vectorized.
 
 To do that in Wasm would mean you'd have an array of heap allocated pointers in Wasm memory space.
 
-
-#### Serialization is costly
-
-In many environmentrs you have to consider the cost of moving objects across a boundary.
-
-- In Java you have the JVM
-- In Python you have Python objects and the GIL. Here Python objects can read outside memory not defined by Python, and non-Python code can read Python objects (as long as it acquires the GIL).
-- In the browser is worse than Python. It is possible (though it can be complex) for JavaScript to read in the WASM memory space. But WASM is sandboxed: the wasm context can't read anything from outside of its own memory buffer. This means that all data in JS needs to be copied into the WASM buffer before any wasm operations can take place.
-  - additionally, wasm doesn't come with its own allocator. This means that
-
-
-#### Moving data across the WASM boundary
-
-Moving data between JS and Wasm in effect acts the same as moving data between JS and a Web Worker. There are two options:
-
-- A Structured Clone. This is a costly operation that is akin to a JSON serialization of objects.
-- However some objects are _transferables_. This means that they can be shared _freely_ either between the main thread and a web worker or, in this case, across the Wasm boundary. Transfering an object is free because it's essentially just changing the ownership of a pointer between threads. This also means that few objects meet this criteria: mainly just `ArrayBuffer`s.
-
-This is why having a binary geometry encoding is so valuable. It's free to move across thread boundaries.
-
-In JS,
-
-For example, in Christoph's prototype, it:
-
-- Uses a JS library to serialize every GeoJSON to WKT <https://github.com/chrispahm/geos-wasm/blob/8c2679536bd33205377b6359a2e7bdc03d69db14/src/allJsFunctions/Buffer.mjs#L182>
-- Passes the WKT string to `GEOSGeomFromWKT`. This first copies the string to WASM memory using a structured clone. Then GEOS parses the WKT into a GEOS object and returns to JS the pointer in WASM memory to the GEOS object.
-
- it serializes every GeoJSON object to WKT, then passes the WKT to GEOS
 
 ### Licensing
 
@@ -161,6 +163,10 @@ A GeoArrow implementation could read geometries from WASM at [literally zero cos
 Let's look at each of the above sections and see how
 
 ### Moving data across the WASM boundary
+
+Above I said
+
+> when every part of the process needs a different memory representation, the interchange between each is going to have overhead
 
 I said above "if only there was some standardized binary format for arrays of geometries".
 
