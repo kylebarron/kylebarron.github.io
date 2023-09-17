@@ -47,7 +47,7 @@ const config: GatsbyConfig = {
         ],
         externalLinks: [
           {
-            name: "Github",
+            name: "GitHub",
             url: "https://github.com/kylebarron",
           },
           {
