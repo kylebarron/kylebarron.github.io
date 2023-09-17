@@ -1,7 +1,6 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
-import { Styled } from "theme-ui";
 
 // Language colors from:
 // https://github.com/ozh/github-colors/blob/master/colors.json
@@ -61,9 +60,9 @@ export default function GithubLink(props) {
         </span>
       ))}
       {/* Styled.a gives the link the same styling as other links in the theme: https://theme-ui.com/api#styled */}
-      <Styled.a href={href} target="_blank" rel="noopener noreferrer">
+      <a href={href} target="_blank" rel="noopener noreferrer">
         <FontAwesomeIcon icon={faGithub} /> {linkText}
-      </Styled.a>
+      </a>
     </span>
   );
 }
