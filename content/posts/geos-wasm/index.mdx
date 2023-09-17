@@ -2,7 +2,7 @@
 title: Thoughts on GEOS in WebAssembly
 date: 2023-06-30
 slug: /blog/geos-wasm
-description: ...
+# description: ...
 ---
 
 JavaScript is missing a battle-tested geometry engine that's performant at scale.
@@ -41,9 +41,9 @@ It's my belief that for any project beyond a certain complexity, there should on
 
 ### In high-level languages, prefer bindings
 
-<!-- To me the core of Tom's reasoning above is
+{/* <!-- To me the core of Tom's reasoning above is
 
-> [JSTS is] not exactly the same set of bugs as GEOS. If I have bugs, I want all of the GEOS things to have bugs! And the roaring success of, say, Shapely, indicates that GEOS's level of bugs is pretty tolerable. -->
+> [JSTS is] not exactly the same set of bugs as GEOS. If I have bugs, I want all of the GEOS things to have bugs! And the roaring success of, say, Shapely, indicates that GEOS's level of bugs is pretty tolerable. --> */}
 
 For every other language and environment, the code should be a _binding_ to a core library because
 it takes such a huge investment to reach the stability of a core library. These other
@@ -83,7 +83,7 @@ Turf and JSTS absolutely have their use cases. For one, they exist today! They'r
 
 Looking down the road, I think there's absolutely a case to bring GEOS or GeoRust to Wasm. GEOS is and GeoRust has the potential to be rock-solid stable libraries. I would _suspect_ they both have potential for performance gains in Wasm over a JS library.
 
-<!-- that a WebAssembly geometry binding has potential for vast performance improvements over a pure-JS implementation. GEOS has seen a ton of performance tuning over the years. And a binary geometry representation that obviates the need for tons of small heap-allocated JS objects would help too. -->
+{/* <!-- that a WebAssembly geometry binding has potential for vast performance improvements over a pure-JS implementation. GEOS has seen a ton of performance tuning over the years. And a binary geometry representation that obviates the need for tons of small heap-allocated JS objects would help too. --> */}
 
 For the point of discussion, let's consider for now that we've decided to write GEOS bindings for WebAssembly. We'll come back to GeoRust at the end.
 
@@ -171,9 +171,7 @@ Rust has a feature called [_traits_](https://doc.rust-lang.org/book/ch10-02-trai
 
 I've been [slowly pushing this along](https://github.com/georust/geo/pull/1011) in GeoRust. It'll take a while to figure out how to adapt GeoRust's algorithms for the trait model, but if it works out it'll make things really fast and memory efficient.
 
-
-<!-- A GeoArrow implementation could read geometries from Wasm memory at [virtually zero cost](https://observablehq.com/@kylebarron/zero-copy-apache-arrow-with-webassembly), possibly without even making a copy of the data back to JS.
-
+{/* <!-- A GeoArrow implementation could read geometries from Wasm memory at [virtually zero cost](https://observablehq.com/@kylebarron/zero-copy-apache-arrow-with-webassembly), possibly without even making a copy of the data back to JS. */}
 
 This is why having a binary geometry encoding is so valuable. It's free to move across thread boundaries.
 
