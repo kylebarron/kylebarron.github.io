@@ -41,6 +41,10 @@ const config: GatsbyConfig = {
             slug: `/projects`,
           },
           {
+            title: `Media`,
+            slug: `/media`,
+          },
+          {
             title: `About`,
             slug: `/about`,
           },
@@ -51,12 +55,16 @@ const config: GatsbyConfig = {
             url: "https://github.com/kylebarron",
           },
           {
-            name: `Twitter`,
+            name: `X`,
             url: `https://twitter.com/kylebarron2`,
           },
           {
             name: "Mastodon",
             url: "https://mapstodon.space/@kylebarron",
+          },
+          {
+            name: "LinkedIn",
+            url: "https://www.linkedin.com/in/kylebarrongeo/",
           },
           {
             name: `RSS`,
