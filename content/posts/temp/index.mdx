@@ -1,0 +1,149 @@
+---
+title: "Fast, interoperable Python tabular data exchange with the Arrow PyCapsule Interface"
+date: 2024-08-12
+slug: "/blog/arrow-pycapsule-interface"
+# description: "Data protocols enable "
+---
+
+## Data protocols
+
+Data protocols enable data producers and data consumers to link up without any prior knowledge of the other.
+
+They enable an ecosystem of libraries to interoperate.
+
+### Data protocols
+
+### Zero-copy data exchange
+
+Data protocols can be zero-copy when the source and destination libraries
+
+## Notable data protocols
+
+Zero-copy data exchange
+not necessarily zero copy when libraries have a custom internal representation
+
+
+### Python buffer protocol
+
+To discuss data protocols in the scientific Python ecosystem, we must first start with the Python buffer protocol.
+
+### Not all protocols are fast
+
+protocols are most useful when the protocol itself is efficient and binary, but also matches or is very close to the underlying representation on both sides of the transfer
+
+## Arrow PyCapsule Interface
+
+The Arrow project recently created the [Arrow PyCapsule Interface](https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html), a new protocol for sharing Arrow data in Python. Among its goals is allowing Arrow data interchange without requiring the use of pyarrow, but I'm also excited about the prospect of an ecosystem that can share data only be the presence of dunder methods, where producer and consumer don't have to have prior knowledge of each other.
+
+### The interface
+
+The Arrow PyCapsule Interface provides a well-known wrapper around either the Arrow C Data Interface or the Arrow C Stream Interface.
+
+The C Data Interface provides pointers to Arrow data in memory.
+
+The C Stream Interface provides a function pointer that describes how to access the next batch of Arrow data.
+
+### Arrow concepts
+
+
+
+### Stream materialization
+
+important for users to consider what classes will materialize an Arrow stream or not. The user declares their intent by deciding between, say, a `RecordBatchReader` and a `Table`.
+
+Streams can be
+
+The user needs to keep in mind when the source is not materialized in memory. Passing e.g. a RecordBatchReader
+
+### Implementation Status
+
+I've been
+
+
+todo: pyspark (https://github.com/apache/spark/pull/46529)
+
+
+
+
+
+https://github.com/timkpaine/arrow-cpp-python-nocopy c++ example
+
+Include a checklist of which libraries have implemented it. checklist for import and export
+- pyarrow
+- nanoarrow
+- arro3
+- daft
+- datafusion
+- vegafusion
+- duckdb
+- polars
+- fastexcel
+- pandas
+- ibis
+- lance (https://github.com/lancedb/lance/issues/2630)
+
+some geospatial-specific arrow libraries:
+- geopandas
+- geoarrow-rs
+- lonboard
+- pyogrio
+- gdal
+- stac-geoparquet
+
+
+### Tips for library authors
+
+advice for authors on how to support pycapsule interface in their APIs. Check for `__arrow_c_stream__` on input objects.
+
+## Usage from Rust
+
+I've been working on the pyo3-arrow library.
+
+Only a few lines of code:
+
+```rs
+use pyo3::prelude::*;
+use pyo3_arrow::error::PyArrowResult;
+use pyo3_arrow::PyArray;
+
+/// Take elements by index from an Array, creating a new Array from those
+/// indexes.
+#[pyfunction]
+pub fn take(py: Python, values: PyArray, indices: PyArray) -> PyArrowResult<PyObject> {
+    // We can call py.allow_threads to ensure the GIL is released during our
+    // operations
+    // This example just wraps `arrow_select::take::take`
+    let output_array =
+        py.allow_threads(|| arrow_select::take::take(values.as_ref(), indices.as_ref(), None))?;
+
+    // Construct a PyArray and export it to the arro3 Python Arrow
+    // implementation
+    Ok(PyArray::new(output_array, values.field().clone()).to_arro3(py)?)
+}
+```
+
+## Use for domain-specific libraries
+
+Data protocols enable innovation.
+
+By reducing the cost of data movement, it makes the benefit of moving
+
+
+
+
+it's really exciting that these kind of small, tightly-integrated, domain-specific libraries can interop easily with other big libraries like polars, pandas, pyarrow, duckdb. It enables innovation by making it easier to integrate libraries without having knowledge of consumer and producer.
+
+Rust compute on lazy arrow iterators. As long as your compute is synchronous, this is actually (surprisiginly to me when it worked) rather straightforward! And then you can compose iterators too.
+
+So say I want to cast the schema of one Parquet file to another, I can use pyarrow.parquet.ParquetFile to construct a RecordBatchReader, then pass that reader to arro3.compute.cast, then pass it back to pyarrow.parquet.write_table. In this case, cast is relatively common, and you could do that in
+
+lazy arrow iterators from Rust can release the gil? Exercise for the reader.
+
+pro tips for authors:
+
+- Use a pyarrow.RecordBatchReader instead of an iterator of record batches. For one, this maintains the schema with the loop, so you don't have to peek into the iterator to find the schema of the stream. Also, this allows for exporting the reader at the C level, without touching Python.
+
+this means that all of these libraries that happen to be in my niche, geospatial, can interoperate with the Arrow data ecosystem at large
+
+
+e.g. in aws lambda, pyarrow blows your budget. pyarrow is massive and monolithic but because Arrow is ABI stable, you can rely on "dynamic linking" of data sharing at runtime between Python libraries.
