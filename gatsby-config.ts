@@ -55,6 +55,10 @@ const config: GatsbyConfig = {
             url: "https://github.com/kylebarron",
           },
           {
+            name: `Bluesky`,
+            url: `https://bsky.app/profile/kylebarron.dev`,
+          },
+          {
             name: `X`,
             url: `https://twitter.com/kylebarron2`,
           },
