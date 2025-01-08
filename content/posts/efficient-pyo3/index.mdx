@@ -1,0 +1,122 @@
+---
+title: Effective data model validation for Rust-Python libraries with pyo3
+date: 2024-11-23
+slug: /blog/pyo3-data-model-validation
+---
+
+title options:
+- Effective data model validation for Rust-Python libraries with pyo3
+- Building maintainable Python libraries with Rust and pyo3
+
+## Intro
+
+I've been writing a couple Python libraries recently and wanted to share my learnings on two
+
+This blog post should be useful to others who are interested in writing Python native libraries using Rust.
+
+### Why I'm excited about Rust-Python libraries
+
+- Python's strength is as a glue language
+- Easy dependency management and easy to build
+- Simple for users to install. Static wheel with no Python dependencies.
+
+Downsides:
+
+- Two language problem. The project is used by people writing Python, but the codebase is written in Rust. This means it's difficult for your users to contribute fixes back to the project and leads to a lower project bus factor.
+  - This means it's _even more important_ to have a maintainable code base, because maintainer bandwidth may be even smaller.
+
+### Recent libraries
+
+I've written two self-contained Rust-Python libraries recently:
+
+- [arro3]: A minimal Python library for [Apache Arrow], connecting to the Rust arrow crate
+- [obstore]: A wrapper around the Rust object_store crate, providing
+
+TODO: note that each of these also has subprojects for code reuse.
+
+[Apache Arrow]: https://arrow.apache.org/
+[arro3]: https://github.com/kylebarron/arro3
+[obstore]: https://github.com/developmentseed/obstore
+
+These libraries have let me refine my techniques for two useful things:
+
+- handling data conversions between Rust and Python
+- code reuse across multiple Rust-Python libraries
+
+And since these are two common and thorny topics, I thought it would be helpful to others to write about my learnings here.
+
+
+
+## Data model validation
+
+wrapping rust libraries for pyo3 is easiest when there's a very concrete data model.
+
+### Validating Python data input in Rust
+
+To export a Python function to Rust, you decorate a Rust function with `#[pyfunction]`:
+
+```rs
+#[pyfunction]
+fn hello_world() {
+  println!("hello world!");
+}
+```
+
+If you export this function via some module, maybe named `my_library`, you can call this function from Python with `my_library.hello_world()`.
+
+But functions aren't too valuable if you can't receive data in parameters.
+
+It's easy when you're taking a native Python type as input (TODO: show list from pyo3 docs).
+
+```rs
+#[pyfunction]
+fn foo(value: u64) {
+  println!(format!("The value is: {}", value));
+}
+```
+
+But what happens when you want something more complex? When you want to pass a complex dictionary
+
+One option is pythonize, but sometimes we want more control over our data, or are using structs that don't define Serde traits.
+
+Show the impls of `FromPyObject`
+
+
+
+Let's say that we already have a data model
+
+Look at the backoff configuration. I'm wrapping `object_store` as a third party and have no control over the upstream data model. I just want to represent
+
+
+```rs
+
+```
+
+#### Polymorphic input
+
+Note that `.extract::<>()` won't provide
+
+
+### Exporting Rust data to Python
+
+In pyo3 0.23, the `IntoPy` trait was replaced by `IntoPyObject`, which allows _fallible_ conversion. This expands the possibilities because itallows you to return an error while converting data to Python.
+
+- When to make something a Python _class_ vs a Rust only struct with a FromPyObject trait
+  - Making something
+
+- I specifically want to discuss the FromPyObject and IntoPyObject traits
+
+
+
+## Code reuse
+
+across multiple Rust-Python libraries
+
+https://github.com/PyO3/pyo3/issues/1444
+
+Code needs to be in Rust for code reuse by other pyo3 based libraries. It can't be in the Python side of Rust code.
+
+### Code reuse for ABI-stable data
+
+### Code reuse for non-ABI-stable data
+

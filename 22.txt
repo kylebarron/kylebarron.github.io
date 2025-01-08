@@ -1,0 +1,29 @@
+wrapping rust libraries for pyo3 is easiest when there's a very concrete data model. object-store is a good example of this, so my recent binding of object-store to Python is also a good place to look for this.
+
+So for example, ObjectStore has the `list` method: https://docs.rs/object_store/latest/object_store/trait.ObjectStore.html#tymethod.list
+
+I want to create this `list` function exported to Python: https://github.com/kylebarron/arro3/blob/92c49cff299f9e675ebcb554ac2b20bfef7502d7/object-store-rs/src/list.rs#L60-L75
+
+First look at `store: PyObjectStore`. That's not a type provided by Python or the `pyo3` binding. `pyo3` lets you use as parameter types _anything that implements `FromPyObject`_. `FromPyObject` describes how to convert an arbitrary Python object of unknown type into a specific Rust object. This is really key to reusability and validation because 1) all the code for how to do this conversion can be implemented once and reused really cleanly just by using that type as the function parameter. And 2) by the time your function is called, you know that the `FromPyObject` implementation of all types has already succeeded. So I don't have to check in each function if it's actually a `PyObjectStore` instance. I can just use it.
+
+But the key here is that I can implement `FromPyObject` on my own types. So here's my definition of `PyObjectStore`: https://github.com/kylebarron/arro3/blob/6d513eaf66928729480dab0d1479ba9d57ddaad4/pyo3-object_store/src/store.rs#L12-L31
+
+I check: is it an instance of `S3Store`, is it an instance of `AzureStore`, etc. And then if it is, I create this `PyObjectStore` object, which is just a wrapper around an `Arc<dyn ObjectStore>`, which just means "anything that implements the `ObjectStore` trait", but at that point we no longer know which concrete type it is.
+
+So then the usage of `PyObjectStore` can just call `into_inner` (https://github.com/kylebarron/arro3/blob/92c49cff299f9e675ebcb554ac2b20bfef7502d7/object-store-rs/src/list.rs#L70) to access the underlying `Arc<dyn ObjectStore>` and then do something with it.
+
+All that makes it really easy to have reusable, validated data _input_, but we can also do the same for returning data via the `IntoPy` trait.
+
+So I have this `PyObjectMeta` wrapper that implements `IntoPy` and just converts itself into this Python `dict` https://github.com/kylebarron/arro3/blob/92c49cff299f9e675ebcb554ac2b20bfef7502d7/object-store-rs/src/list.rs#L13-L31
+
+Because `PyObjectMeta` implements `IntoPy`, so also `Vec<PyObjectMeta>` also implements `IntoPy`. So I can return `Vec<PyObjectMeta>` from my function https://github.com/kylebarron/arro3/blob/92c49cff299f9e675ebcb554ac2b20bfef7502d7/object-store-rs/src/list.rs#L66 and it will automatically convert it to a list of dicts outside my function
+
+
+
+
+
+
+
+
+
+
