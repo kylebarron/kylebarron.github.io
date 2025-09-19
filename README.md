@@ -18,6 +18,10 @@ This site started from the [`gatsby-starter-minimal-blog`](https://www.gatsbyjs.
 Gatsby theme. This means that the default style can be overridden bit by bit by
 _shadowing_ (overwriting) individual files from the theme.
 
+## Notes to self
+
+- Code highlighting settings exist in `code.ts`. To add more languages, add more settings there. That's for the little language tab that appears at the top left of code blocks.
+
 ## Theme Features
 
 - MDX
@@ -51,13 +55,13 @@ yarn
 # start hot-reloading server
 gatsby develop
 ```
-After `gatsby develop`, the site is now running by default on `http://localhost:8000`. 
+After `gatsby develop`, the site is now running by default on `http://localhost:8000`.
 
 ### Modifying the theme
 
 The base theme is installed as an NPM dependency. To overwrite parts of the theme, you use Gatsby _shadowing_ (Guide: [Shadowing in Gatsby Themes](https://www.gatsbyjs.org/docs/themes/shadowing/)).
 
-To overwrite parts of the theme, add files in this repository at 
+To overwrite parts of the theme, add files in this repository at
 ```
 src/@lekoarts/gatsby-theme-minimal-blog/
 ```
