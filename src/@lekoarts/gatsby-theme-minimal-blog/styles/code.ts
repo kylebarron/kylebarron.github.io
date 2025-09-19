@@ -1,133 +1,26 @@
-// Ideally you should be able to import the existing theme, so that you're only
-// shadowing a tiny part of the css, but the following doesn't work because
-// nothing is exported from @lekoarts/gatsby-theme-minimal-blog
+// Override specific parts of the theme from the upstream definition
 
-// import code from "@lekoarts/gatsby-theme-minimal-blog"
-// const newCode = {
-//   ...code,
-//   "p > code, li > code": {
-//     bg: tint(`secondary`, 0.9),
-//     // color: `rgb(214, 222, 235)`,
-//     px: 2,
-//     py: 1,
-//     borderRadius: `2px`,
-//   },
-// };
-// export default newCode;
+import code from "@lekoarts/gatsby-theme-minimal-blog/src/styles/code";
 
-const code = {
-  "[data-name='live-editor']": {
-    fontSize: 1,
-    "textarea, pre": {
-      padding: (t: any) => `${t.space[3]} !important`,
-    },
-  },
-  "[data-name='live-preview']": {
-    padding: (t: any) => `calc(${t.space[2]} + 10px) !important`,
-    backgroundColor: `muted`,
-  },
+const newCode = {
+  ...code,
   ".prism-code": {
-    fontSize: 1,
-    padding: 3,
-    webkitOverflowScrolling: `touch`,
-    backgroundColor: `transparent`,
-    overflow: `initial`,
-    float: `left`,
-    minWidth: `100%`,
-    mb: 0,
-    '&[data-linenumber="false"]': {
-      ".token-line": {
-        pl: 3,
-      },
-    },
-  },
-  ".token": {
-    display: `inline-block`,
-  },
-  "p > code, li > code": {
-    bg: `muted`,
-    px: 2,
-    py: 1,
-    borderRadius: `2px`,
+    // @ts-ignore
+    ...code[".prism-code"],
+    fontSize: 16,
+    padding: 1,
   },
   ".gatsby-highlight": {
-    fontSize: 1,
-    position: `relative`,
-    webkitOverflowScrolling: `touch`,
-    bg: `muted`,
-    overflow: `auto`,
-    borderRadius: `2px`,
-    mx: [0, 0, 0, -3],
-    ".token-line": {
-      mx: -3,
-    },
-    "pre.language-": {
-      mt: 0,
-    },
-    "pre.language-noLineNumbers": {
-      mt: 0,
-    },
-    'pre[class*="language-"]:before': {
-      bg: `white`,
-      borderRadius: `0 0 0.25rem 0.25rem`,
-      color: `black`,
-      fontSize: `12px`,
-      letterSpacing: `0.025rem`,
-      padding: `0.1rem 0.5rem`,
-      position: `absolute`,
-      left: `1rem`,
-      textAlign: `right`,
-      textTransform: `uppercase`,
-      top: 0,
-    },
+    // @ts-ignore
+    ...code[".gatsby-highlight"],
     "pre[class~='language-bash']:before": {
       content: `'bash'`,
+      background: `#89e051`,
     },
     'pre[class~="language-cpp"]:before': {
       content: `"C++"`,
       background: `#f34b7d`,
       color: `white`,
-    },
-    'pre[class~="language-css"]:before': {
-      content: `"css"`,
-      background: `#ff9800`,
-      color: `black`,
-    },
-    "pre[class~='language-diff']:before": {
-      content: `'diff'`,
-      background: `#e6ffed`,
-    },
-    'pre[class~="language-graphql"]:before': {
-      content: `"GraphQL"`,
-      background: `#E10098`,
-    },
-    'pre[class~="language-html"]:before': {
-      content: `"html"`,
-      background: `#005a9c`,
-      color: `white`,
-    },
-    'pre[class~="language-javascript"]:before, pre[class~="language-js"]:before':
-      {
-        content: `"js"`,
-        background: `#f7df1e`,
-        color: `black`,
-      },
-    "pre[class~='language-json']:before, pre[class~='language-json5']:before": {
-      content: `'json'`,
-      background: `linen`,
-    },
-    'pre[class~="language-jsx"]:before': {
-      content: `"jsx"`,
-      background: `#61dafb`,
-      color: `black`,
-    },
-    "pre[class~='language-markdown']:before": {
-      content: `'md'`,
-    },
-    'pre[class~="language-mdx"]:before': {
-      content: `"mdx"`,
-      background: `#f9ac00`,
-      color: `black`,
     },
     'pre[class~="language-python"]:before, pre[class~="language-py"]:before': {
       content: `"Python"`,
@@ -139,91 +32,11 @@ const code = {
       background: `#dea584`,
       color: `black`,
     },
-    "pre[class~='language-sh']:before": {
-      content: `'sh'`,
-    },
-    "pre[class~='language-shell']:before": {
-      content: `'shell'`,
-    },
     'pre[class~="language-sql"]:before': {
       content: `"SQL"`,
       background: `#e38c00`,
       color: `black`,
     },
-    'pre[class~="language-svg"]:before': {
-      content: `"svg"`,
-      background: `#005a9c`,
-      color: `white`,
-    },
-    'pre[class~="language-text"]:before': {
-      content: `"text"`,
-    },
-    'pre[class~="language-ts"]:before': {
-      content: `"ts"`,
-      background: `#61dafb`,
-      color: `black`,
-    },
-    'pre[class~="language-tsx"]:before': {
-      content: `"tsx"`,
-      background: `#61dafb`,
-      color: `black`,
-    },
-    'pre[class~="language-xml"]:before': {
-      content: `"xml"`,
-      background: `#005a9c`,
-      color: `white`,
-    },
-    "pre[class~='language-yaml']:before": {
-      content: `'yaml'`,
-      background: `#ffa8df`,
-    },
-    "pre[class~='language-yml']:before": {
-      content: `'yml'`,
-      background: `#ffa8df`,
-    },
-  },
-  '.gatsby-highlight > code[class*="language-"], .gatsby-highlight > pre[class=*="language-"]':
-    {
-      wordSpacing: `normal`,
-      wordBreak: `normal`,
-      overflowWrap: `normal`,
-      lineHeight: 1.5,
-      tabSize: 4,
-      hyphens: `none`,
-    },
-  ".line-number-style": {
-    display: `inline-block`,
-    width: `3em`,
-    userSelect: `none`,
-    opacity: 0.3,
-    textAlign: `center`,
-    position: `relative`,
-  },
-  ".code-title": {
-    backgroundColor: `muted`,
-    color: `text`,
-    fontSize: 0,
-    px: 3,
-    py: 2,
-    fontFamily: `monospace`,
-    mx: [0, 0, 0, -3],
-  },
-  "[data-name='live-preview'], [data-name='live-editor']": {
-    mx: [0, 0, 0, -3],
-  },
-  ".token-line": {
-    pr: 3,
-  },
-  ".highlight-line": {
-    backgroundColor: `highlightLineBg`,
-    borderLeft: `4px solid`,
-    borderLeftColor: `primary`,
-    ".line-number-style": {
-      width: `calc(3em - 4px)`,
-      opacity: 0.5,
-      left: `-2px`,
-    },
   },
 };
-
-export default code;
+export default newCode;
