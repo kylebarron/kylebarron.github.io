@@ -15,8 +15,6 @@
 // };
 // export default newCode;
 
-import { tint } from "@theme-ui/color";
-
 const code = {
   "[data-name='live-editor']": {
     fontSize: 1,
@@ -26,7 +24,7 @@ const code = {
   },
   "[data-name='live-preview']": {
     padding: (t: any) => `calc(${t.space[2]} + 10px) !important`,
-    backgroundColor: tint(`primary`, 0.7),
+    backgroundColor: `muted`,
   },
   ".prism-code": {
     fontSize: 1,
@@ -47,7 +45,7 @@ const code = {
     display: `inline-block`,
   },
   "p > code, li > code": {
-    // Remove background
+    bg: `muted`,
     px: 2,
     py: 1,
     borderRadius: `2px`,
@@ -56,7 +54,7 @@ const code = {
     fontSize: 1,
     position: `relative`,
     webkitOverflowScrolling: `touch`,
-    bg: `rgb(1, 22, 39)`,
+    bg: `muted`,
     overflow: `auto`,
     borderRadius: `2px`,
     mx: [0, 0, 0, -3],
@@ -180,8 +178,8 @@ const code = {
     position: `relative`,
   },
   ".code-title": {
-    backgroundColor: tint(`primary`, 0.7),
-    color: `black`,
+    backgroundColor: `muted`,
+    color: `text`,
     fontSize: 0,
     px: 3,
     py: 2,
@@ -195,8 +193,9 @@ const code = {
     pr: 3,
   },
   ".highlight-line": {
-    backgroundColor: `rgb(2, 55, 81)`,
-    borderLeft: `4px solid rgb(2, 155, 206)`,
+    backgroundColor: `highlightLineBg`,
+    borderLeft: `4px solid`,
+    borderLeftColor: `primary`,
     ".line-number-style": {
       width: `calc(3em - 4px)`,
       opacity: 0.5,
