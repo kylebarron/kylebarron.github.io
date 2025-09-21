@@ -4,6 +4,7 @@ tags:
     - Python
     - C
     - Rust
+    - Performance
 date: 2025-09-21
 slug: /blog/fast-python-bindings
 ---
@@ -84,7 +85,9 @@ gdf = gpd.read_file(geodatasets.get_path("ny.bb"))
 multi_polygon = gdf.geometry[0]
 ```
 
-`multi_polygon` is now a Shapely geometry representing [Staten Island](https://en.wikipedia.org/wiki/Staten_Island). (It's a `MultiPolygon` because there are small islands off of Staten Island)
+`multi_polygon` is now a Shapely geometry representing [Staten Island](https://en.wikipedia.org/wiki/Staten_Island). (It's a [`MultiPolygon`] because there are small islands included off of the main island.)
+
+[`MultiPolygon`]: https://shapely.readthedocs.io/en/latest/reference/shapely.MultiPolygon.html
 
 ![](https://github.com/user-attachments/assets/24694bc6-8d38-4122-89d1-3a92aa4292b3)
 
@@ -108,7 +111,7 @@ def vectorized_intersects_1000x(array_of_multi_polygons):
     shapely.intersects(array_of_multi_polygons, array_of_multi_polygons)
 ```
 
-Now timing each of these
+Now timing each of these shows that the vectorized implementation, where the for loop is compiled, is **1100x faster** than the scalar implementation.
 
 ```py
 %timeit call_intersects_1000x(multi_polygon)
@@ -121,12 +124,26 @@ array_of_multi_polygons = np.repeat(multi_polygon, 1000)
 # 1.94 μs ± 79.3 ns per loop (mean ± std. dev. of 7 runs, 1,000,000 loops each)
 ```
 
-The vectorized implementation, where the for loop is compiled, is **1100x faster** than the scalar implementation. To make a fast Python API that binds to compiled code, you need to work to remove as much overhead as possible. That overhead comes in two forms: Python interpreter overhead and serialization overhead.
-
 For scalar geometries, every `Geometry` is a separate Python object and separately garbage collected. That plus the Python `for` loop adds _so much_ overhead.
 
 
 ## Serialization overhead
+
+The previous section assumed we _already had our data_ in
+
+Your compiled code needs to be able to access the data.
+
+Compiled code needs to translate the Python input
+
+This is called serialization.
+
+You can't
+
+One common serialization method is JSON. But this is absolutely horrible for performance.
+
+We really
+
+It's common to use JSON
 
 
 Serialization overhead _in_ and serialization overhead _out_. You might care about both of these
@@ -140,6 +157,18 @@ The point of Arrow is that it minimizes _both_ directions.
 ### How Arrow relates to this
 
 I've been working on Arrow because it _eliminates_ serialization overhead.
+
+A future post will
+
+### Example from Lonboard
+
+Lonboard is a library for
+
+Lonboard binds to the _exact same_ library as pydeck did previously, but is 50x faster because of its focus on efficient serialization.
+
+
+
+In this case, we're profiling serialization generally, though not specifically serialization into compiled code (while Lonboard uses compiled code, the part that requires serialization is the part that moves data from Python into the browser).
 
 
 ## Examples from my projects
