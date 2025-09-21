@@ -61,23 +61,17 @@ One of the most common places of Python overhead is in a for loop.
 
 This is called _vectorization_, or operating on _sequences_ of items at once.
 
+It's true that there are _some_ use cases that only care about comparing two items. But many use cases — and many of the slowest ones — care about comparing two _sets_ of items.
+
+And when you're only comparing one item with one other item, a relatively small amount of the total execution time is probably happening in this function. So it tends to make most sense to prioritize the optimization of cases where a whole bunch of operations are happening.
 
 ### Learning from _Shapely_ v2 transition
 
-Shapely is a Python library that provides bindings to the [GEOS](https://libgeos.org/) geometry engine, itself written in C++.
+Shapely is a Python library that provides bindings to the [GEOS](https://libgeos.org/) geometry engine, itself written in C++. Shapely [version 2](https://shapely.readthedocs.io/en/latest/release/2.x.html#version-2-0-0-2022-12-12) heavily refactored the implementation to provide vectorized APIs.
 
+Let's compare the
 
-
-Taking your example:
-
-```py
->>> g1 = Geometry(poly1, fmt='geojson')
->>> g2 = Geometry(poly2, fmt='geojson')
->>> g1.intersects(g2)
-True
-```
-
-Here's an example with the related Shapely code to show what I mean in terms of performance. First, I'll just load a moderately complex MultiPolygon:
+Here's an example with the related Shapely code to show what I mean in terms of performance. First, I'll load a moderately complex geometry from an example dataset provided by [`geodatasets`](https://geodatasets.readthedocs.io/en/latest/) package:
 
 ```py
 import shapely
@@ -90,14 +84,14 @@ gdf = gpd.read_file(geodatasets.get_path("ny.bb"))
 multi_polygon = gdf.geometry[0]
 ```
 
-`multi_polygon` is now
-This loads a
-
-(It's called a `MultiPolygon` because there are small islands off of Staten Island)
+`multi_polygon` is now a Shapely geometry representing [Staten Island](https://en.wikipedia.org/wiki/Staten_Island). (It's a `MultiPolygon` because there are small islands off of Staten Island)
 
 ![](https://github.com/user-attachments/assets/24694bc6-8d38-4122-89d1-3a92aa4292b3)
 
-Now let's define two functions. One which uses the scalar-valued [`MultiPolygon.intersects`], which compares this one `MultiPolygon` to one other geometry. And another that uses Shapely's vectorized [`shapely.intersects`] — you can pass in an array of geometries and the single Python dispatch will operate on _all of them at once_.
+Now let's define two functions:
+
+- One that uses the scalar-valued [`MultiPolygon.intersects`]. Every call  which compares this one `MultiPolygon` to one other geometry
+- Another that uses Shapely's vectorized [`shapely.intersects`] — you can pass in an array of geometries and the single Python dispatch will operate on _all of them at once_.
 
 [`MultiPolygon.intersects`]: https://shapely.readthedocs.io/en/2.1.1/reference/shapely.MultiPolygon.html#shapely.MultiPolygon.intersects
 [`shapely.intersects`]: https://shapely.readthedocs.io/en/latest/reference/shapely.intersects.html#shapely.intersects
@@ -133,6 +127,12 @@ For scalar geometries, every `Geometry` is a separate Python object and separate
 
 
 ## Serialization overhead
+
+
+Serialization overhead _in_ and serialization overhead _out_. You might care about both of these
+
+
+The point of Arrow is that it minimizes _both_ directions.
 
 
 ### Scientific Python and the Buffer protocol
