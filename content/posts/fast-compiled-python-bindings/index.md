@@ -1,5 +1,5 @@
 ---
-title: How to make performant Python bindings to compiled code
+title: Making performant Python bindings to compiled code
 tags:
     - Python
     - C
@@ -9,17 +9,17 @@ date: 2025-09-21
 slug: /blog/fast-python-bindings
 ---
 
-Python is among the most popular programming languages in the world. As a high-level, interpreted language, it's relatively easy to learn and fast to iterate on, but at the same time widely used in scientific computing, data science, and machine learning/AI.
+Python is among the most popular programming languages in the world. As a high-level, interpreted language, it's relatively easy to learn and fast to iterate on. But at the same time it's widely used in scientific computing, data science, and machine learning/AI.
 
-Python's interpreted nature means that Python code can be slower to evaluate than similarly-implemented compiled code. But Python has a secret weapon here: Python can transparently integrate with compiled code and many high-performance Python libraries rely on compiled code for their speedups.
+Python's interpreted nature means that pure Python code can be slower to evaluate than similarly-implemented compiled code. But Python has a secret weapon here: Python can transparently integrate with compiled code, and many high-performance Python libraries rely on compiled code for their speedups.
 
-For example, [Numpy](https://numpy.org/), the fundamental Python library for scientific computing, _looks_ like a Python library to any end user, but silently its core implementation relies on compiled code. Indeed, more than a third of Numpy's source code is written in C or C++, and this is the essential reason why Numpy code executes so fast.
+For example, [Numpy](https://numpy.org/), the fundamental Python library for scientific computing, _looks and functions_ like a Python library to any end user. But, quietly, it's actually a hybrid of Python surrounding a fully compiled core. Indeed, more than a third of Numpy's source code is written in C or C++, and this is the essential reason why Numpy code executes so fast.
 
-I believe the growth of AI will make Python even more in demand, making it more important than ever before to be able to create high-performance Python libraries that bind to compiled code underneath.
+I believe Python will continue growing in demand, driven by the continued growth of AI and data science, making the value of high-performance, hybrid Python libraries greater than ever.
 
-But writing performant Python bindings to compiled code can be tricky. There are some pitfalls that can easily make your code slow.
+But writing performant Python bindings to compiled code can be tricky. It's easy to run into pitfalls that slow down your code to a relative crawl.
 
-This post is relevant to any end user wondering why some Python libraries are so much faster than others, and to any library author wondering how to make their Python bindings as fast as possible. The techniques described here apply regardless of the underlying compiled language — C, C++, Rust, etc.
+In this post I'll cover what makes hybrid Python-compiled code fast and how you can avoid the most common pitfalls. This post should appeal to any end user wondering why some Python libraries are so much faster than others and to any library author wondering how to make their Python bindings as fast as possible. The techniques described here apply regardless of the underlying compiled language — C, C++, Rust, etc.
 
 ## What makes Python code fast?
 
@@ -176,10 +176,9 @@ Ideally we'd want some sort of standard that all libraries could adhere to ... s
 
 This is the reason for the Buffer protocol, a [Python standard][buffer-protocol-docs] for exchanging binary buffers and multi-dimensional arrays. By implementing the buffer protocol, you can safely read binary buffers from
 
-(Historically the buffer protocol was only accessible through Python's C API, but. PEP 688  ).
+(Historically the buffer protocol was only accessible through Python's C API, but. [PEP 688][pep-688] made it visible from Python for type hinting.  ).
 
-
-
+[pep-688]: https://peps.python.org/pep-0688/
 [buffer-protocol-docs]: https://docs.python.org/3/c-api/buffer.html
 
 > This cannot be emphasized enough: **it is fundamentally the Buffer Protocol and related NumPy functionality that make Python useful as a scientific computing platform.**
