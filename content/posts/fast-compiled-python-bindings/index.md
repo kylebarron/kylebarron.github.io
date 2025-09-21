@@ -19,15 +19,6 @@ I believe the growth of AI will make Python even more in demand, making it more 
 
 But writing performant Python bindings to compiled code can be tricky. There are some pitfalls that can easily make your code slow.
 
-
-
-<!-- Recently I commented on a GitHub issue proposing a new Python binding to a compiled geospatial library called [tg] [^1], and I realized it would make a great blog post --- I should write down some of my thoughts on how to make fast Python bindings to compiled code. -->
-
-<!-- Often, the developers of compiled libraries aren't Python experts, or the developers of the Python bindings aren't skilled in compiled code. It's tricky here because you need to draw on both sides. -->
-
-
-
-
 This post is relevant to any end user wondering why some Python libraries are so much faster than others, and to any library author wondering how to make their Python bindings as fast as possible. The techniques described here apply regardless of the underlying compiled language — C, C++, Rust, etc.
 
 ## What makes Python code fast?
@@ -129,63 +120,97 @@ For scalar geometries, every `Geometry` is a separate Python object and separate
 
 ## Serialization overhead
 
-The previous section assumed we _already had our data_ in
+The previous section assumed our compiled code _already had access to our data_. That is, it assumed that the `multi_polygon` object was already accessible by the compiled code, and therefore did not take into account the performance characteristics of the _creation_ of the `multi_polygon` variable. But in real-world use cases, making data accessible to the compiled code can be a critical slowdown.
 
-Your compiled code needs to be able to access the data.
+Let's say you have
 
-Compiled code needs to translate the Python input
+Your compiled code needs to be able to transform the Python input into a representation that your code knows how to operate on.
 
-This is called serialization.
 
-You can't
+
+### Simple serialization
+
+The simplest way of doing this is copying the input data
 
 One common serialization method is JSON. But this is absolutely horrible for performance.
 
-We really
 
-It's common to use JSON
+### Binary serialization
 
-
-Serialization overhead _in_ and serialization overhead _out_. You might care about both of these
-
-
-The point of Arrow is that it minimizes _both_ directions.
-
-
-### Scientific Python and the Buffer protocol
-
-### How Arrow relates to this
-
-I've been working on Arrow because it _eliminates_ serialization overhead.
-
-A future post will
-
-### Example from Lonboard
+#### Lonboard performance
 
 Lonboard is a library for
 
 Lonboard binds to the _exact same_ library as pydeck did previously, but is 50x faster because of its focus on efficient serialization.
+
+![](lonboard-serialization-perf.png)
+
+
 
 
 
 In this case, we're profiling serialization generally, though not specifically serialization into compiled code (while Lonboard uses compiled code, the part that requires serialization is the part that moves data from Python into the browser).
 
 
-## Examples from my projects
 
+### Serialization has two directions
+
+Serialization overhead _in_ and serialization overhead _out_. You might care about both of these
+
+
+### Removing serialization?
+
+So far we've assumed that the input representation from Python is not something that the compiled library can operate on directly. But what if the input representation could be something that we can use directly? Then we wouldn't need to pay the time or memory cost of _any_ serialization.
+
+This is possible, for a compiled library to _directly access_ the memory of another compiled library. It can be highly performant but comes with a number of pitfalls.
+ But in order to do this safely, the two libraries must have total agreement over the exact shape and layout of how the data is stored at the binary level. This is called the [Application Binary Interface](https://en.wikipedia.org/wiki/Application_binary_interface) (ABI), where communication happens at the binary level instead of at the language interface level.
+
+But ABI compatibility can be extremely difficult to achieve. All libraries exchanging memory must be kept fully in sync. Errors in ABI compatibility can lead to memory safety issues or a [segmentation fault](https://en.wikipedia.org/wiki/Segmentation_fault), which crashes the Python interpreter.
+
+
+Ideally we'd want some sort of standard that all libraries could adhere to ... so that an ecosystem of libraries could all implement the same internal binary representation, and then our code could safely exchange data without any copies ...
+
+
+
+### Scientific Python and the Buffer protocol
+
+This is the reason for the Buffer protocol, a [Python standard][buffer-protocol-docs] for exchanging binary buffers and multi-dimensional arrays. By implementing the buffer protocol, you can safely read binary buffers from
+
+(Historically the buffer protocol was only accessible through Python's C API, but. PEP 688  ).
+
+
+
+[buffer-protocol-docs]: https://docs.python.org/3/c-api/buffer.html
+
+> This cannot be emphasized enough: **it is fundamentally the Buffer Protocol and related NumPy functionality that make Python useful as a scientific computing platform.**
+
+
+https://jakevdp.github.io/blog/2014/05/05/introduction-to-the-python-buffer-protocol/
+
+The buffer protocol set the stage for a huge amount of innovation, because it meant libraries could specialize on a specific task while still freely integrating with the rest of the scientific Python ecosystem.
+
+
+
+### How Arrow relates to this
+
+Arrow is to structured tabular data as the buffer protocol is to arrays.
+
+I've been working on Arrow because it _eliminates_ serialization overhead.
+
+A future post will dive into how this actually works in Python, and how to use the Arrow PyCapsule Interface to make sure your library is compatible with a whole ecosystem of other libraries.
+
+
+## Conclusion
+
+In this post
+
+
+Let me know, message me on linkedin.
+
+Future posts will dig more into the Arrow side.
 
 
 
 
 [^1]: https://github.com/tidwall/tg/issues/8#issuecomment-3290298687
 
-
---------
-
-
-
-
-
-
-
-So in sum, my argument is that your proposed API would have so much overhead and have such poor performance that few people would choose it over Shapely, its most natural competitor. Which would be a shame because `tg` is _such_ an impressive library. On the flip side, I'm saying that to create Python bindings _faster than Shapely_ would require a certain amount of work and thought and planning.
