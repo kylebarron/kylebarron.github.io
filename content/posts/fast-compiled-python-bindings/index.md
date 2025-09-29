@@ -37,26 +37,28 @@ As this post is focused on Python integration, we'll focus just on the first two
 
 ## Python interpreter overhead
 
-The tricky bit is that we need to have an idea of how the end Python user will be using our Python library. We want to present a clean, easy-to-use, modular interface that lets _as much execution time as possible_ happen in compiled code rather than Python code.
+Perhaps ironically, because Python interpreter overhead can be significant, fast Python libraries need to remove as much Python as possible from their runtime. Python should be considered only a convenient interface by which users can access native code, and Python calls should be limited to thin wrappers around native code.
 
+
+The tricky bit is that we need to have an idea of how the end Python user will be using our library so that we can adapt the Python API to what they need to perform. Because end users will likely be writing code in pure Python, the more end users must implement themselves, the worse their overall performance will be.
+
+That doesn't mean that function calls should be monolithic. Quite the opposite; we still want a composable API. It's ok for the user to make several consecutive Python calls, as long as each call is maximally native. We want to present a clean, Pythonic, easy-to-use, modular interface that lets _as much execution time as possible_ happen in compiled code rather than Python code.
 
 ### Vectorization
 
-One of the most common places of Python overhead is in a for loop.
+One of the most common places of Python overhead is in a for loop. It follows, then, that one of the easiest places to find speedups is by removing Python-level for loops.
 
-This is called _vectorization_, or operating on _sequences_ of items at once.
+This is called _vectorization_: moving the Python for loop into native code by presenting a Python API that operates on _sequences_ of items at once, not scalars.
 
-It's true that there are _some_ use cases that only care about comparing two items. But many use cases — and many of the slowest ones — care about comparing two _sets_ of items.
-
-And when you're only comparing one item with one other item, a relatively small amount of the total execution time is probably happening in this function. So it tends to make most sense to prioritize the optimization of cases where a whole bunch of operations are happening.
+There do exist use cases that only care about comparing two scalar items, but in these situations a relatively small amount of the total execution time is likely happening in this function. So providing vectorized APIs tends to provide an easy performance win.
 
 ### Learning from _Shapely_ v2 transition
 
 Shapely is a Python library that provides bindings to the [GEOS](https://libgeos.org/) geometry engine, itself written in C++. Shapely [version 2](https://shapely.readthedocs.io/en/latest/release/2.x.html#version-2-0-0-2022-12-12) heavily refactored the implementation to provide vectorized APIs.
 
-Let's compare the
+Let's compare the performance of its old scalar API with its new vectorized API.
 
-Here's an example with the related Shapely code to show what I mean in terms of performance. First, I'll load a moderately complex geometry from an example dataset provided by [`geodatasets`](https://geodatasets.readthedocs.io/en/latest/) package:
+First, we'll load in a moderately complex polygonal geometry from an example dataset of New York City boroughs provided by the [`geodatasets`](https://geodatasets.readthedocs.io/en/latest/) package:
 
 ```py
 import shapely
@@ -69,7 +71,7 @@ gdf = gpd.read_file(geodatasets.get_path("ny.bb"))
 multi_polygon = gdf.geometry[0]
 ```
 
-`multi_polygon` is now a Shapely geometry representing [Staten Island](https://en.wikipedia.org/wiki/Staten_Island). (It's a [`MultiPolygon`] because there are small islands included off of the main island.)
+`multi_polygon` is now a Shapely geometry representing [Staten Island](https://en.wikipedia.org/wiki/Staten_Island). (It's a [`MultiPolygon`] because there are small islands off of the main island that are also considered part of Staten Island.)
 
 [`MultiPolygon`]: https://shapely.readthedocs.io/en/latest/reference/shapely.MultiPolygon.html
 
@@ -77,8 +79,8 @@ multi_polygon = gdf.geometry[0]
 
 Now let's define two functions:
 
-- One that uses the scalar-valued [`MultiPolygon.intersects`]. Every call  which compares this one `MultiPolygon` to one other geometry
-- Another that uses Shapely's vectorized [`shapely.intersects`] — you can pass in an array of geometries and the single Python dispatch will operate on _all of them at once_.
+1. One that uses the scalar-valued [`MultiPolygon.intersects`], where every Python call compares this _one_ `MultiPolygon` to _one_ other geometry
+2. Another that uses Shapely's vectorized [`shapely.intersects`] — you can pass in an array of geometries and the single Python dispatch will operate on _all of them at once_.
 
 [`MultiPolygon.intersects`]: https://shapely.readthedocs.io/en/2.1.1/reference/shapely.MultiPolygon.html#shapely.MultiPolygon.intersects
 [`shapely.intersects`]: https://shapely.readthedocs.io/en/latest/reference/shapely.intersects.html#shapely.intersects
@@ -95,7 +97,7 @@ def vectorized_intersects_1000x(array_of_multi_polygons):
     shapely.intersects(array_of_multi_polygons, array_of_multi_polygons)
 ```
 
-Now timing each of these shows that the vectorized implementation, where the for loop is compiled, is **1100x faster** than the scalar implementation.
+Now timing each of these (in IPython) shows that the vectorized implementation, where the for loop is compiled, is **1100x faster** than the scalar implementation.
 
 ```py
 %timeit call_intersects_1000x(multi_polygon)
@@ -107,9 +109,6 @@ array_of_multi_polygons = np.repeat(multi_polygon, 1000)
 %timeit vectorized_intersects_1000x(multi_polygon)
 # 1.94 μs ± 79.3 ns per loop (mean ± std. dev. of 7 runs, 1,000,000 loops each)
 ```
-
-For scalar geometries, every `Geometry` is a separate Python object and separately garbage collected. That plus the Python `for` loop adds _so much_ overhead.
-
 
 ## Serialization overhead
 
