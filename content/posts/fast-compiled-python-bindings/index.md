@@ -112,28 +112,34 @@ array_of_multi_polygons = np.repeat(multi_polygon, 1000)
 
 ## Serialization overhead
 
-The previous section assumed our compiled code _already had access to our data_. That is, it assumed that the `multi_polygon` object was already accessible by the compiled code, and therefore did not take into account the performance characteristics of the _creation_ of the `multi_polygon` variable. But in real-world use cases, making data accessible to the compiled code can be a critical slowdown.
+The previous section assumed our compiled code _already had access to our data_. The `multi_polygon` object was already directly accessible by the compiled code, and the timings did not take into account the performance characteristics of the _creation_ of the `multi_polygon` variable.
 
-Let's say you have
+But in real-world use cases, making data accessible to the compiled code can be a critical slowdown.
 
-Your compiled code needs to be able to transform the Python input into a representation that your code knows how to operate on.
-
-
+Any time a native function is called from Python, the native code needs to be able to transform the Python input into a representation that the native code knows how to operate on.
 
 ### Simple serialization
 
-The simplest way of doing this is copying the input data
+The _simplest_ way of doing this is copying and parsing the input data
+
+For structured data,
 
 One common serialization method is JSON. But this is absolutely horrible for performance.
+
+Additionally, this requires a full memory copy of the Python input.
 
 
 ### Binary serialization
 
+Binary serialization.
+
 #### Lonboard performance
 
-Lonboard is a library for
+As an example of how much faster binary serialization can be, we can look to Lonboard.
 
-Lonboard binds to the _exact same_ library as pydeck did previously, but is 50x faster because of its focus on efficient serialization.
+Lonboard is a Python library for interactive geospatial visualization that offers improved performance because the internals focus on efficient serialization.
+
+Lonboard binds to the _exact same_ library as pydeck did previously, but is 30-40x faster because of its focus on efficient serialization.
 
 ![](lonboard-serialization-perf.png)
 
@@ -152,23 +158,23 @@ Serialization overhead _in_ and serialization overhead _out_. You might care abo
 
 ### Removing serialization?
 
-So far we've assumed that the input representation from Python is not something that the compiled library can operate on directly. But what if the input representation could be something that we can use directly? Then we wouldn't need to pay the time or memory cost of _any_ serialization.
+So far we've assumed that the input representation from Python is opaque and not something that the compiled library can operate on at a binary level directly. But what if the input could be used directly? Then we wouldn't need to pay the time or memory cost of _any_ serialization.
 
-This is possible, for a compiled library to _directly access_ the memory of another compiled library. It can be highly performant but comes with a number of pitfalls.
- But in order to do this safely, the two libraries must have total agreement over the exact shape and layout of how the data is stored at the binary level. This is called the [Application Binary Interface](https://en.wikipedia.org/wiki/Application_binary_interface) (ABI), where communication happens at the binary level instead of at the language interface level.
+It is possible for a compiled library to _directly access_ the memory of another compiled library. It can be highly performant but comes with a number of potential pitfalls.
 
-But ABI compatibility can be extremely difficult to achieve. All libraries exchanging memory must be kept fully in sync. Errors in ABI compatibility can lead to memory safety issues or a [segmentation fault](https://en.wikipedia.org/wiki/Segmentation_fault), which crashes the Python interpreter.
+For one, in order to do this safely, the two libraries must have total agreement over the exact shape and layout of how the data is stored at the binary level. This is called the [Application Binary Interface](https://en.wikipedia.org/wiki/Application_binary_interface) (ABI), where communication happens at the binary level instead of at the language interface level.
 
+But ABI compatibility can be extremely difficult to achieve. All libraries exchanging memory must be kept fully in sync. Errors in ABI compatibility can lead to memory safety issues or a [segmentation fault](https://en.wikipedia.org/wiki/Segmentation_fault), which crashes the Python interpreter without a chance to recover.
 
 Ideally we'd want some sort of standard that all libraries could adhere to ... so that an ecosystem of libraries could all implement the same internal binary representation, and then our code could safely exchange data without any copies ...
 
+### The Python Buffer Protocol
 
+The need to reduce copies and overhead across compiled libraries working on binary buffers was so great that the Buffer Protocol was established.
 
-### Scientific Python and the Buffer protocol
+The Buffer Protocol is a [Python standard][buffer-protocol-docs] for exchanging binary buffers and multi-dimensional arrays. By implementing the buffer protocol, you can safely read raw binary buffers from any other library that provides the interface without any copying. Or, similarly, you can provide your own buffers to other libraries so that they can have native access your buffers.
 
-This is the reason for the Buffer protocol, a [Python standard][buffer-protocol-docs] for exchanging binary buffers and multi-dimensional arrays. By implementing the buffer protocol, you can safely read binary buffers from
-
-(Historically the buffer protocol was only accessible through Python's C API, but. [PEP 688][pep-688] made it visible from Python for type hinting.  ).
+The buffer protocol set the stage for a huge amount of innovation in the scientific Python ecosystem, because it meant libraries could specialize on a specific, narrow task while still freely integrating with the rest of the scientific Python ecosystem.
 
 [pep-688]: https://peps.python.org/pep-0688/
 [buffer-protocol-docs]: https://docs.python.org/3/c-api/buffer.html
@@ -178,7 +184,6 @@ This is the reason for the Buffer protocol, a [Python standard][buffer-protocol-
 
 https://jakevdp.github.io/blog/2014/05/05/introduction-to-the-python-buffer-protocol/
 
-The buffer protocol set the stage for a huge amount of innovation, because it meant libraries could specialize on a specific task while still freely integrating with the rest of the scientific Python ecosystem.
 
 
 
@@ -203,5 +208,4 @@ Future posts will dig more into the Arrow side.
 
 
 
-[^1]: https://github.com/tidwall/tg/issues/8#issuecomment-3290298687
 
