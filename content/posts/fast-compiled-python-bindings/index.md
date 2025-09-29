@@ -19,7 +19,7 @@ For example, [Numpy](https://numpy.org/), the fundamental Python library for sci
 
 I believe Python will continue growing in demand, driven by the continued growth of AI and data science, making the value of high-performance, hybrid Python libraries greater than ever.
 
-But writing performant Python bindings can be tricky. It's easy to run into pitfalls that slow down your code to a relative crawl.
+But writing performant Python bindings can be tricky. It's easy to run into pitfalls that slow down your code to a relative crawl, even if the underlying compiled code is fast.
 
 In this post I'll cover what makes hybrid Python-compiled code fast and how you can avoid the most common pitfalls. This post should appeal to any end user wondering why some Python libraries are so much faster than others and to any library author wondering how to make their Python bindings as fast as possible. The techniques described here apply regardless of the underlying compiled language — C, C++, Rust, etc.
 
@@ -27,22 +27,13 @@ In this post I'll cover what makes hybrid Python-compiled code fast and how you 
 
 There are **three core areas** to speed up a compiled Python library:
 
-- Removing Python interpreter overhead: ensuring that as much functionality as possible is provided by compiled code.
-- Removing serialization overhead: reducing slowdowns from copying data into a representation accessible by the compiled code.
-- Improving performance of the underlying compiled code. itself, outside of the Python integration.
+- **Removing Python interpreter overhead**: ensuring that as much functionality as possible is provided by compiled code.
+- **Removing serialization overhead**: reducing slowdowns from copying data into a representation accessible by the compiled code.
+- **Improving performance of the underlying compiled code**.
 
+These areas are independent, and striving to tackle all three is what makes a library lightning-fast.
 
-I'm using Shapely as an example because, while, yes, `tg` is independent from GEOS, the lessons learned in the Shapely project matter a lot if you want to create a Python API that is performant _from Python_.
-
-
-
-
-This post won't go into #3, the rest of this post will be split between the other two.
-
-
- of overhead: Python interpreter overhead and serialization overhead. To make really fast bindings, we need to remove them both.
-
-The third part of making fast
+As this post is focused on Python integration, we'll focus just on the first two.
 
 ## Python interpreter overhead
 
