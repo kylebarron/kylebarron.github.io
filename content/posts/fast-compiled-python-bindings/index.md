@@ -9,24 +9,26 @@ date: 2025-09-21
 slug: /blog/fast-python-bindings
 ---
 
+## "Hybrid" Python libraries
+
 Python is among the most popular programming languages in the world. As a high-level, interpreted language, it's relatively easy to learn and fast to iterate on. But at the same time it's widely used in scientific computing, data science, and machine learning/AI.
 
-Python's interpreted nature means that pure Python code can be slower to evaluate than similarly-implemented compiled code. But Python has a secret weapon here: Python can transparently integrate with compiled code, and many high-performance Python libraries rely on compiled code for their speedups.
+Python's interpreted nature means that pure Python code can be slower to evaluate than similarly-implemented compiled code. But Python has a secret weapon here: Python can transparently integrate with compiled code. Many high-performance Python libraries are _hybrid_ in this way. They present a Python interface but rely heavily on compiled code for performance.
 
-For example, [Numpy](https://numpy.org/), the fundamental Python library for scientific computing, _looks and functions_ like a Python library to any end user. But, quietly, it's actually a hybrid of Python surrounding a fully compiled core. Indeed, more than a third of Numpy's source code is written in C or C++, and this is the essential reason why Numpy code executes so fast.
+For example, [Numpy](https://numpy.org/), the fundamental Python library for scientific computing, _looks and functions_ like a Python library to any end user. But, quietly, its core functionality is provided from compiled C code. Indeed, more than a third of Numpy's source code is written in C or C++, and this is the essential reason why Numpy code executes so fast.
 
 I believe Python will continue growing in demand, driven by the continued growth of AI and data science, making the value of high-performance, hybrid Python libraries greater than ever.
 
-But writing performant Python bindings to compiled code can be tricky. It's easy to run into pitfalls that slow down your code to a relative crawl.
+But writing performant Python bindings can be tricky. It's easy to run into pitfalls that slow down your code to a relative crawl.
 
 In this post I'll cover what makes hybrid Python-compiled code fast and how you can avoid the most common pitfalls. This post should appeal to any end user wondering why some Python libraries are so much faster than others and to any library author wondering how to make their Python bindings as fast as possible. The techniques described here apply regardless of the underlying compiled language — C, C++, Rust, etc.
 
-## What makes Python code fast?
+## What makes a hybrid Python library fast?
 
-At the end of the day it's pretty simple: there are **three core areas** to speed up a compiled Python library:
+There are **three core areas** to speed up a compiled Python library:
 
-- Removing Python interpreter overhead: ...
-- Removing serialization overhead: slowdowns from moving data between a Python representation and a compiled representation.
+- Removing Python interpreter overhead: ensuring that as much functionality as possible is provided by compiled code.
+- Removing serialization overhead: reducing slowdowns from copying data into a representation accessible by the compiled code.
 - Improving performance of the underlying compiled code. itself, outside of the Python integration.
 
 
