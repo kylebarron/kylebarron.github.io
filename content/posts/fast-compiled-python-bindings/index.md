@@ -6,7 +6,7 @@ tags:
     - Rust
     - Performance
     - Apache Arrow
-date: 2025-09-21
+date: 2025-10-07
 slug: /blog/fast-python-bindings
 ---
 
