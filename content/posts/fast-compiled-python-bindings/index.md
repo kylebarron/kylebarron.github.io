@@ -21,7 +21,8 @@ I believe Python will continue growing in demand, driven by the continued growth
 
 But writing performant Python bindings can be tricky. It's easy to run into pitfalls that slow down your code to a relative crawl, even if the underlying compiled code is fast.
 
-In this post I'll cover what makes hybrid Python-compiled code fast and how you can avoid the most common pitfalls. This post should appeal to any end user wondering why some Python libraries are so much faster than others and to any library author wondering how to make their Python bindings as fast as possible. The techniques described here apply regardless of the underlying compiled language — C, C++, Rust, etc.
+In this post I'll cover some ways to make hybrid Python-compiled code fast and how you can avoid the most common pitfalls. This post should appeal to any end user wondering why some Python libraries are so much faster than others and to any library author wondering how to make their Python bindings as fast as possible. The techniques described here apply regardless of the underlying compiled language — C, C++, Rust, etc.
+
 
 ## What makes a hybrid Python library fast?
 
@@ -37,12 +38,11 @@ As this post is focused on Python integration, we'll focus just on the first two
 
 ## Python interpreter overhead
 
-Perhaps ironically, because Python interpreter overhead can be significant, fast Python libraries need to remove as much Python as possible from their runtime. Python should be considered only a convenient interface by which users can access native code, and Python calls should be limited to thin wrappers around native code.
+Because Python interpreter overhead can be significant, fast Python libraries need to — perhaps ironically — remove as much Python execution as possible from their runtime. Python should be considered only a convenient interface by which users can access native code, and Python calls should be limited to thin wrappers around native code.
 
+The tricky bit is that we need to have an idea of how the end Python user will be using our library so that we can adapt the Python API to what they need to perform. Because end users will likely be writing code in pure Python, the more functionality end users must implement themselves, the worse their overall performance will be.
 
-The tricky bit is that we need to have an idea of how the end Python user will be using our library so that we can adapt the Python API to what they need to perform. Because end users will likely be writing code in pure Python, the more end users must implement themselves, the worse their overall performance will be.
-
-That doesn't mean that function calls should be monolithic. Quite the opposite; we still want a composable API. It's ok for the user to make several consecutive Python calls, as long as each call is maximally native. We want to present a clean, Pythonic, easy-to-use, modular interface that lets _as much execution time as possible_ happen in compiled code rather than Python code.
+That doesn't mean that function calls should be monolithic. Quite the opposite; we still want a composable API. It's ok for the user to make several consecutive Python calls, as long as each call is itself maximally native. We want to present a clean, Pythonic, easy-to-use, modular interface that lets _as much execution time as possible_ happen in compiled code rather than Python code.
 
 ### Vectorization
 
@@ -52,11 +52,9 @@ This is called _vectorization_: moving the Python for loop into native code by p
 
 There do exist use cases that only care about comparing two scalar items, but in these situations a relatively small amount of the total execution time is likely happening in this function. So providing vectorized APIs tends to provide an easy performance win.
 
-### Learning from _Shapely_ v2 transition
+### Learning from the _Shapely_ v2 transition
 
-Shapely is a Python library that provides bindings to the [GEOS](https://libgeos.org/) geometry engine, itself written in C++. Shapely [version 2](https://shapely.readthedocs.io/en/latest/release/2.x.html#version-2-0-0-2022-12-12) heavily refactored the implementation to provide vectorized APIs.
-
-Let's compare the performance of its old scalar API with its new vectorized API.
+Shapely is a Python library that provides bindings to the [GEOS](https://libgeos.org/) geometry engine, itself written in C++. Shapely [version 2](https://shapely.readthedocs.io/en/latest/release/2.x.html#version-2-0-0-2022-12-12) was heavily refactored to add vectorized APIs. Since the original scalar APIs still exist, this gives us a convenient way to compare the performance of scalar and vectorized APIs while the rest of the underlying C++ code remains unchanged.
 
 First, we'll load in a moderately complex polygonal geometry from an example dataset of New York City boroughs provided by the [`geodatasets`](https://geodatasets.readthedocs.io/en/latest/) package:
 
@@ -110,9 +108,11 @@ array_of_multi_polygons = np.repeat(multi_polygon, 1000)
 # 1.94 μs ± 79.3 ns per loop (mean ± std. dev. of 7 runs, 1,000,000 loops each)
 ```
 
+While some sort of scalar API may often be necessary, having first-class vectorized APIs can provide _orders of magnitude_ improved performance.
+
 ## Serialization overhead
 
-The previous section assumed our compiled code _already had access to our data_. Because the `multi_polygon` object was already a Shapely object, it was already in a format that the compiled Shapely code could operate on, and the timings did not take into account the performance characteristics of the _creation_ of the geometry.
+The previous section assumed our compiled code _already had access to our data_. Because the `multi_polygon` object was already a Shapely object, it was already in a format that the compiled Shapely code could operate on. This means the timings did not take into account the _creation_ of the geometry.
 
 But in real-world use cases, making data accessible to the compiled code can be a critical slowdown.
 
@@ -142,7 +142,7 @@ So far we've assumed that the Python input is opaque at the binary level and not
 
 It is indeed possible in some cases for a compiled library to _directly access_ the underlying memory of the input, even when it comes from another compiled library. It can be highly performant but comes with a number of potential pitfalls.
 
-For one, in order to do this safely, the two libraries must have total agreement over the exact shape and layout of how the data is stored at the binary level, called the [Application Binary Interface](https://en.wikipedia.org/wiki/Application_binary_interface) (ABI). In contrast to an API, in an _ABI_ communication happens at the binary level instead of at the language interface level.
+For one, in order to do this safely, the two libraries must have total agreement over the exact shape and layout of how the data is stored at the binary level, called the [Application Binary Interface](https://en.wikipedia.org/wiki/Application_binary_interface) (ABI). In contrast to an API, the communcation of an _ABI_ happens at the binary level instead of at the language interface level.
 
 But ABI compatibility can be extremely difficult to achieve. All libraries exchanging memory must be kept fully in sync with any ABI changes. Errors in ABI compatibility can lead to memory safety issues or a [segmentation fault](https://en.wikipedia.org/wiki/Segmentation_fault), which crashes the Python interpreter without a chance to recover.
 
@@ -150,13 +150,13 @@ Ideally we'd want some sort of standard that all libraries could adhere to so th
 
 ### The Python Buffer Protocol
 
-Others have run into these same problems before. In the early scientific Python ecosystem, libraries like NumPy and SciPy needed to exchange data but wanted to avoid serialization overhead.
+Others before me have run into problems with slow data interchange. In the early scientific Python ecosystem, libraries like NumPy and SciPy needed to exchange data but wanted to avoid serialization overhead.
 
-[PEP 3118](https://peps.python.org/pep-3118/) — released as part of Python 3.0 in _2008_ — describes the modern Python [Buffer Protocol](http://jakevdp.github.io/blog/2014/05/05/introduction-to-the-python-buffer-protocol/), a [Python standard][buffer-protocol-docs] for exchanging binary buffers and multi-dimensional arrays.
+[PEP 3118](https://peps.python.org/pep-3118/) — released as part of Python 3.0 in _2008_ — describes the Python [Buffer Protocol](http://jakevdp.github.io/blog/2014/05/05/introduction-to-the-python-buffer-protocol/), a [Python standard][buffer-protocol-docs] for exchanging binary buffers and multi-dimensional arrays.
 
-Projects that implement the buffer protocol can safely read raw binary buffers and multidimension arrays — without any copying — from any other library that exposes the interface.
+Projects that implement the Buffer Protocol can safely read raw binary buffers and multidimensional arrays — without any copying — from any other library that exposes the interface.
 
-The buffer protocol set the stage for a huge amount of innovation in the scientific Python ecosystem, because it meant libraries could specialize on a narrow task while still freely integrating with the rest of the scientific Python ecosystem.
+The Buffer Protocol set the stage for a huge amount of innovation because it meant libraries could specialize on a narrow task while still freely integrating with the rest of the scientific Python ecosystem.
 
 [buffer-protocol-docs]: https://docs.python.org/3/c-api/buffer.html
 
@@ -164,7 +164,7 @@ Jake VanderPlas, author of the [Python Data Science Handbook](https://jakevdp.gi
 
 > This cannot be emphasized enough: **it is fundamentally the Buffer Protocol and related NumPy functionality that make Python useful as a scientific computing platform.**
 
-Jake's post also goes into deeper detail of how to use the buffer protocol from a Cython project.
+The Buffer Protocol is widely implemented, and its decentralized nature means that if you implement it in your library, your library will instantly be compatible with the full ecosystem.
 
 ### Apache Arrow & the Arrow C Data Interface
 
@@ -172,11 +172,12 @@ While the memory layout of a multidimensional array is straightforward and large
 
 This is where [Apache Arrow](https://arrow.apache.org/) comes in. Arrow defines the binary layout — with a stable ABI — that has become the _lingua franca_ for representing tabular data in memory.
 
-In turn, Arrow's [C Data Interface](https://arrow.apache.org/docs/format/CDataInterface.html) defines the binary interface for managing the data interchange across multiple programs, ensuring no invalid memory access nor memory leaks.
+In turn, Arrow's [C Data Interface](https://arrow.apache.org/docs/format/CDataInterface.html) defines the binary interface for managing the data interchange across multiple programs in a single process, ensuring no invalid memory access nor memory leaks.
 
-For Python libraries, ensure you also implement the [Arrow PyCapsule Interface](https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html), a layer on top of the C Data Interface that exposes well-known Python dunder methods, standardizing how libraries access each other's C Data Interface. The PyCapsule Interface has been implemented by a wide array of Python dataframe and database libraries, and its decentralized nature means that your library will instantly be compatible with them once you implement the protocol as well.
+For Python libraries, ensure you also implement the [Arrow PyCapsule Interface](https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html), a layer on top of the C Data Interface that exposes well-known Python dunder methods, standardizing how libraries access each other's C Data Interface.
 
-Arrow and the Arrow PyCapsule Interface is to structured tabular data what the buffer protocol is for buffer and array data: the pairing of an ABI stable memory layout with a Python-level interface standardizing memory semantics.
+Arrow and the Arrow PyCapsule Interface is to structured tabular data what the Buffer Protocol is for buffer and array data: the pairing of an ABI stable memory layout with a Python-level interface standardizing memory semantics.
+The PyCapsule Interface [has been implemented by](https://github.com/apache/arrow/issues/39195#issuecomment-2245718008) a wide array of Python dataframe and database libraries, and, similarly to the Buffer Protocol, its decentralized nature means that your library can instantly be compatible with all of them.
 
 Future posts will dive into Arrow and the Arrow PyCapsule Interface in more detail, providing the best practices for how to make sure your library is compatible with the full Arrow PyCapsule ecosystem.
 
