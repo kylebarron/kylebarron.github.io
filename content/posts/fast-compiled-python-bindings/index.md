@@ -146,7 +146,7 @@ For one, in order to do this safely, the two libraries must have total agreement
 
 But ABI compatibility can be extremely difficult to achieve. All libraries exchanging memory must be kept fully in sync with any ABI changes. Errors in ABI compatibility can lead to memory safety issues or a [segmentation fault](https://en.wikipedia.org/wiki/Segmentation_fault), which crashes the Python interpreter without a chance to recover.
 
-Ideally we'd want some sort of standard that all libraries could adhere to ... so that an ecosystem of libraries could all implement the same internal binary representation, and then our code could safely exchange data without any copies ...
+Ideally we'd want some sort of standard that all libraries could adhere to so that an ecosystem of libraries could all implement the same internal binary representation, and then our code could safely exchange data without any copies. In the case of array-like and tabular data, these standards already exist!
 
 ### The Python Buffer Protocol
 
@@ -164,21 +164,29 @@ Jake VanderPlas, author of the [Python Data Science Handbook](https://jakevdp.gi
 
 > This cannot be emphasized enough: **it is fundamentally the Buffer Protocol and related NumPy functionality that make Python useful as a scientific computing platform.**
 
-### How Arrow relates to this
+Jake's post also goes into deeper detail of how to use the buffer protocol from a Cython project.
 
-Arrow is to structured tabular data as the buffer protocol is to arrays.
+### Apache Arrow & the Arrow C Data Interface
 
-I've been working on Arrow because it _eliminates_ serialization overhead.
+While the memory layout of a multidimensional array is straightforward and largely hasn't changed for decades, how to represent tabular data in memory is harder.
 
-A future post will dive into how this actually works in Python, and how to use the Arrow PyCapsule Interface to make sure your library is compatible with a whole ecosystem of other libraries.
+This is where [Apache Arrow](https://arrow.apache.org/) comes in. Arrow defines the binary layout — with a stable ABI — that has become the _lingua franca_ for representing tabular data in memory.
 
+In turn, Arrow's [C Data Interface](https://arrow.apache.org/docs/format/CDataInterface.html) defines the binary interface for managing the data interchange across multiple programs, ensuring no invalid memory access nor memory leaks.
 
+For Python libraries, ensure you also implement the [Arrow PyCapsule Interface](https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html), a layer on top of the C Data Interface that exposes well-known Python dunder methods, standardizing how libraries access each other's C Data Interface. The PyCapsule Interface has been implemented by a wide array of Python dataframe and database libraries, and its decentralized nature means that your library will instantly be compatible with them once you implement the protocol as well.
+
+Arrow and the Arrow PyCapsule Interface is to structured tabular data what the buffer protocol is for buffer and array data: the pairing of an ABI stable memory layout with a Python-level interface standardizing memory semantics.
+
+Future posts will dive into Arrow and the Arrow PyCapsule Interface in more detail, providing the best practices for how to make sure your library is compatible with the full Arrow PyCapsule ecosystem.
 
 ### Example: Lonboard performance
 
 As an example of how much faster binary serialization can be, we can look to [Lonboard](https://developmentseed.org/lonboard), a Python library I develop for interactive geospatial visualization in Jupyter.
 
 Lonboard binds to the _exact same_ JavaScript library, [deck.gl](https://deck.gl/), as pydeck, another library, did previously, but is 30-40x faster because Lonboard's internals focus on efficient serialization.
+
+Lonboard uses Arrow extensively.
 
 [Slide on ]
 
@@ -197,14 +205,8 @@ In this case, we're profiling serialization generally, though not specifically s
 
 ## Conclusion
 
-In this post
+To reduce Python interpreter overhead, move as many steps as you can into native code, using techniques like vectorization, while keeping in mind how your users actually want to run the code.
 
+If you're working with numerical data, try to use and expose the buffer protocol. If you're working with tabular data, try to build your compiled code around the Arrow layout so that you get free interchange between your library and others. If you're working with tabular data but can't adopt Arrow as the native layout, it may still make sense to adopt Arrow as the data interchange format.
 
-Let me know, message me on linkedin.
-
-Future posts will dig more into the Arrow side.
-
-
-
-
-
+I hope this helps you make faster code! If you have comments, add a comment on LinkedIn.
