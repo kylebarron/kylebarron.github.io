@@ -95,7 +95,7 @@ def vectorized_intersects_1000x(array_of_multi_polygons):
     shapely.intersects(array_of_multi_polygons, array_of_multi_polygons)
 ```
 
-Now timing each of these (in IPython) shows that the vectorized implementation, where the for loop is compiled, is **1100x faster** than the scalar implementation.
+Now timing each of these (in [IPython](https://ipython.org/)) shows that the vectorized implementation, where the for loop is compiled, is **1100x faster** than the scalar implementation.
 
 ```py
 %timeit call_intersects_1000x(multi_polygon)
