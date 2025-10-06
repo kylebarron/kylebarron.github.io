@@ -183,26 +183,13 @@ Future posts will dive into Arrow and the Arrow PyCapsule Interface in more deta
 
 ### Example: Lonboard performance
 
-As an example of how much faster binary serialization can be, we can look to [Lonboard](https://developmentseed.org/lonboard), a Python library I develop for interactive geospatial visualization in Jupyter.
+As an example of how much performance can be gained from minimizing serialization overhead, we can look to [Lonboard](https://developmentseed.org/lonboard), a Python library I develop for interactive geospatial visualization in Jupyter. Lonboard is a frontend for the [deck.gl](https://deck.gl/) JavaScript visualization library and needs to move all the input data from Python to the browser.
 
-Lonboard binds to the _exact same_ JavaScript library, [deck.gl](https://deck.gl/), as pydeck, another library, did previously, but is 30-40x faster because Lonboard's internals focus on efficient serialization.
+Pydeck, an earlier Python library, also used deck.gl for visualization but its performance suffered for large data input because it used JSON serialization to move data to the browser.
 
-Lonboard uses Arrow extensively.
-
-[Slide on ]
-
+In contrast, Lonboard uses Arrow extensively. On the Python side, it uses the Arrow C Data Interface and PyCapsule Interface internally to exchange Arrow data between Python and a Rust core. Then it uses Parquet, an efficient serialization format for Arrow data, to send data to the browser. (We can't use the Arrow C Data Interface to share data between Python and the browser because browsers are sandboxed; their memory is isolated and kept separate from other programs like Python.) Inside the browser it can [again use the C Data Interface](https://github.com/kylebarron/arrow-js-ffi) to minimize data copies between the WebAssembly Parquet parser and the WebGL renderer. All of this results in a 30-40x speedup over pydeck by minimizing serialization costs and data transformations.
 
 ![](lonboard-serialization-perf.png)
-
-Lonboard can't fully remove _all_ serialization because the Python library connects to JavaScript running in a web browser, which uses sandboxed memory, isolated from the Python process. So we use
-
-But the serialization that can be removed
-
-
-
-In this case, we're profiling serialization generally, though not specifically serialization into compiled code (while Lonboard uses compiled code, the part that requires serialization is the part that moves data from Python into the browser).
-
-
 
 ## Conclusion
 
@@ -210,4 +197,4 @@ To reduce Python interpreter overhead, move as many steps as you can into native
 
 If you're working with numerical data, try to use and expose the buffer protocol. If you're working with tabular data, try to build your compiled code around the Arrow layout so that you get free interchange between your library and others. If you're working with tabular data but can't adopt Arrow as the native layout, it may still make sense to adopt Arrow as the data interchange format.
 
-I hope this helps you make faster code! If you have comments, add a comment on LinkedIn.
+I hope this helps you make faster code! If you have thoughts, add a comment on LinkedIn.
