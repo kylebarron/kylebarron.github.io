@@ -5,6 +5,7 @@ tags:
     - C
     - Rust
     - Performance
+    - Apache Arrow
 date: 2025-09-21
 slug: /blog/fast-python-bindings
 ---
@@ -21,8 +22,7 @@ I believe Python will continue growing in demand, driven by the continued growth
 
 But writing performant Python bindings can be tricky. It's easy to run into pitfalls that slow down your code to a relative crawl, even if the underlying compiled code is fast.
 
-In this post I'll cover some ways to make hybrid Python-compiled code fast and how you can avoid the most common pitfalls. This post should appeal to any end user wondering why some Python libraries are so much faster than others and to any library author wondering how to make their Python bindings as fast as possible. The techniques described here apply regardless of the underlying compiled language — C, C++, Rust, etc.
-
+In this post I'll cover some ways to make hybrid Python-compiled code fast and how you can avoid the most common pitfalls. This post should appeal to any end user wondering why some Python libraries are so much faster than others, to any library author wondering how to make their Python bindings as fast as possible, or anyone wondering why I care so much about Apache Arrow. The techniques described here apply regardless of the underlying compiled language — C, C++, Rust, etc.
 
 ## What makes a hybrid Python library fast?
 
