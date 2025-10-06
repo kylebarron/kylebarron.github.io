@@ -136,43 +136,33 @@ Shapely supports a compact binary serialization format for geometries called "We
 
 This is a bit faster, but this still requires two full memory copies. One copy from the Shapely source into a WKB binary buffer (which is more compact than a JSON string, but still a full memory copy), and then a second copy still for the serialization into the target memory format.
 
-### The key to fast serialization: Minimizing data changes
-
-If we look at the
-
-
 ### Avoiding serialization altogether
 
-<!-- Serialization overhead _in_ and serialization overhead _out_. You might care about both of these -->
+So far we've assumed that the Python input is opaque at the binary level and not something that the compiled library can use directly. But what if we could change this constraint? Then we wouldn't need to pay the time or memory cost of _any_ serialization.
 
-So far we've assumed that the Python input is opaque at the binary level and not something that the compiled library can use directly. But what if we could design a way for the underlying input memory to be used directly? Then we wouldn't need to pay the time or memory cost of _any_ serialization.
-
-It is indeed possible for a compiled library to _directly access_ the memory of Python input, even when it comes from another compiled library. It can be highly performant but comes with a number of potential pitfalls.
+It is indeed possible in some cases for a compiled library to _directly access_ the underlying memory of the input, even when it comes from another compiled library. It can be highly performant but comes with a number of potential pitfalls.
 
 For one, in order to do this safely, the two libraries must have total agreement over the exact shape and layout of how the data is stored at the binary level, called the [Application Binary Interface](https://en.wikipedia.org/wiki/Application_binary_interface) (ABI). In contrast to an API, in an _ABI_ communication happens at the binary level instead of at the language interface level.
 
-But ABI compatibility can be extremely difficult to achieve. All libraries exchanging memory must be kept fully in sync. Errors in ABI compatibility can lead to memory safety issues or a [segmentation fault](https://en.wikipedia.org/wiki/Segmentation_fault), which crashes the Python interpreter without a chance to recover.
+But ABI compatibility can be extremely difficult to achieve. All libraries exchanging memory must be kept fully in sync with any ABI changes. Errors in ABI compatibility can lead to memory safety issues or a [segmentation fault](https://en.wikipedia.org/wiki/Segmentation_fault), which crashes the Python interpreter without a chance to recover.
 
 Ideally we'd want some sort of standard that all libraries could adhere to ... so that an ecosystem of libraries could all implement the same internal binary representation, and then our code could safely exchange data without any copies ...
 
 ### The Python Buffer Protocol
 
-The need to reduce copies and overhead across compiled libraries working on binary buffers was so great that the Buffer Protocol was established.
+Others have run into these same problems before. In the early scientific Python ecosystem, libraries like NumPy and SciPy needed to exchange data but wanted to avoid serialization overhead.
 
-The Buffer Protocol is a [Python standard][buffer-protocol-docs] for exchanging binary buffers and multi-dimensional arrays. By implementing the buffer protocol, you can safely read raw binary buffers from any other library that provides the interface without any copying. Or, similarly, you can provide your own buffers to other libraries so that they can have native access your buffers.
+[PEP 3118](https://peps.python.org/pep-3118/) — released as part of Python 3.0 in _2008_ — describes the modern Python [Buffer Protocol](http://jakevdp.github.io/blog/2014/05/05/introduction-to-the-python-buffer-protocol/), a [Python standard][buffer-protocol-docs] for exchanging binary buffers and multi-dimensional arrays.
 
-The buffer protocol set the stage for a huge amount of innovation in the scientific Python ecosystem, because it meant libraries could specialize on a specific, narrow task while still freely integrating with the rest of the scientific Python ecosystem.
+Projects that implement the buffer protocol can safely read raw binary buffers and multidimension arrays — without any copying — from any other library that exposes the interface.
 
-[pep-688]: https://peps.python.org/pep-0688/
+The buffer protocol set the stage for a huge amount of innovation in the scientific Python ecosystem, because it meant libraries could specialize on a narrow task while still freely integrating with the rest of the scientific Python ecosystem.
+
 [buffer-protocol-docs]: https://docs.python.org/3/c-api/buffer.html
 
+Jake VanderPlas, author of the [Python Data Science Handbook](https://jakevdp.github.io/PythonDataScienceHandbook/), [has described it as](https://jakevdp.github.io/blog/2014/05/05/introduction-to-the-python-buffer-protocol/):
+
 > This cannot be emphasized enough: **it is fundamentally the Buffer Protocol and related NumPy functionality that make Python useful as a scientific computing platform.**
-
-
-https://jakevdp.github.io/blog/2014/05/05/introduction-to-the-python-buffer-protocol/
-
-
-
 
 ### How Arrow relates to this
 
