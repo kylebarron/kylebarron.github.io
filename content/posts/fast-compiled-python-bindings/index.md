@@ -211,4 +211,4 @@ To reduce Python interpreter overhead, move as many steps as you can into native
 
 If you're working with numerical data, try to use and expose the buffer protocol. If you're working with tabular data, try to build your compiled code around the Arrow layout so that you get free interchange between your library and others. If you're working with tabular data but can't adopt Arrow as the native layout, it may still make sense to adopt Arrow as the data interchange format.
 
-I hope this helps you make faster code! If you have thoughts, add a comment on LinkedIn.
+I hope this helps you make faster code! If you have thoughts, add a comment on [LinkedIn](https://www.linkedin.com/posts/kylebarrongeo_new-blog-post-httpslnkdinema48gjk-this-activity-7381328478526410752-NL0W?utm_source=share&utm_medium=member_desktop&rcm=ACoAABKuEXgBt2FrsSE45K4G2F6EHDz-D3ZSLmg), [Bluesky](https://bsky.app/profile/kylebarron.dev/post/3m2mcbbjn6s2u), or [Mastodon](https://mapstodon.space/@kylebarron/115333264711516213).
