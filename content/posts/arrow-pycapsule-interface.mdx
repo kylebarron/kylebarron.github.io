@@ -1,0 +1,241 @@
+---
+title: Fast, interoperable Python data exchange with the Arrow PyCapsule Interface
+description: test
+tags:
+  - Arrow
+  - Python
+banner: ./defence-against-the-dark-arts.jpg
+hero: test
+date: 2025-08-27
+slug: /blog/arrow-pycapsule-interface
+---
+
+Intro about Arrow PyCapsule Interface.
+
+## Data protocols
+
+Data protocols enable innovation.
+
+Data protocols unlink the producer and consumer of data, allowing them to evolve independently.
+
+Data protocols combine a data format standard with a well-defined interface that another library can call into to access the data.
+
+They don't need any knowledge of each other beyond the protocol.
+
+## Examples of data protocols
+## Geo Interface Protocol
+
+Data protocols exist in many domains [^1], but let's take an example from the geospatial Python ecosystem for now: the ["Geo Interface"](https://gist.github.com/sgillies/2217756) protocol.
+
+It's quite simple: any object that has a `__geo_interface__` attribute can be called to access a [GeoJSON](https://geojson.org/)-like Python `dict` with its spatial representation.
+
+```py
+class MyPoint:
+    """An object that represents a point geometry."""
+
+    __geo_interface__ = {'type': 'Point', 'coordinates': (0.0, 0.0)}
+```
+
+It can be extended to support [Features](https://datatracker.ietf.org/doc/html/rfc7946#section-3.2) and [FeatureCollections](https://datatracker.ietf.org/doc/html/rfc7946#section-3.3) as well.
+
+```py
+class MyFeatureCollection:
+    """An object that holds two spatial features."""
+
+    __geo_interface__ = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": (0.0, 0.0)},
+                "properties": {"name": "Null Island"},
+            },
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": (1.0, 1.0)},
+                "properties": {"name": "Point 1"},
+            },
+        ],
+    }
+```
+
+These objects can be consumed by any library that looks for the Geo Interface Protocol. A consuming library can check for `hasattr(input_object, '__geo_interface__')`, and if it exists, call it to get the spatial representation.
+
+### Protocols enable interoperability
+
+A quick Github search for `__geo_interface__` shows that many geospatial Python libraries have implemented this protocol. Just a few examples:
+
+Python: Geo Interface protocol
+Look for a **geo_interface** method on input object. Calling that method gives you GeoJSON.
+v1.0 in March 2012
+
+Many more implementations.
+(Unknown number of implementers… though that’s kinda the point)
+All of these libraries just work together.
+
+- [`geopandas`](https://geopandas.org/en/stable/)
+- [`traffic`](https://github.com/xoolive/traffic/)
+- [`fastkml`](https://github.com/cleder/fastkml)
+- [`geojson`](https://pypi.org/project/geojson/)
+- [`mapnik`](https://github.com/mapnik/python-mapnik)
+- [`descartes`](https://pypi.org/project/descartes/)
+- [`fiona`](https://pypi.org/project/shapely/)
+- [`PySHP`](https://pypi.org/project/fiona/)
+- [`lonboard`](https://pypi.org/project/pyshp/)
+- [`shapely`](https://github.com/developmentseed/lonboard/)
+- [`ezdxf`](https://github.com/mozman/ezdxf)
+
+## Problem solved, right?
+
+Now that we have a well-known and easily implementable protocol, problem solved, right? Not quite.
+
+Let's take a look at a large tabular dataset with point geometries from the [Ookla Open Data bucket on AWS](https://registry.opendata.aws/speedtest-global-performance/).
+
+```python
+import geopandas as gpd
+import pyarrow.parquet as pq
+import shapely
+import pandas as pd
+from pyarrow import fs
+
+url = "ookla-open-data/parquet/performance/type=mobile/year=2019/quarter=1/2019-01-01_performance_mobile_tiles.parquet"
+table = pq.read_table(
+    url,
+    filesystem=fs.S3FileSystem(),
+    columns=["tile", "avg_d_kbps", "avg_u_kbps", "avg_lat_ms"],
+)
+
+# Convert to a GeoPandas GeoDataFrame, storing the centroid of the input geometry
+gdf = gpd.GeoDataFrame(
+    table.drop("tile").to_pandas(types_mapper=pd.ArrowDtype),
+    geometry=shapely.centroid(shapely.from_wkt(table["tile"])),
+)
+```
+
+Now let's say we want to exchange this data across the Geo Interface Protocol.
+
+The consuming library would call `__geo_interface_` on `gdf`, receiving a GeoJSON-like dictionary, and then would parse that into their own internal representation.
+
+```py
+geojson_like = gdf.__geo_interface__
+```
+
+The problem is that this is not efficient. Timing this, it takes 45 seconds just to call this attribute! And then the consumer library would have to parse `geojson_like`, adding even more time.
+
+```
+CPU times: user 32.3 s, sys: 8.98 s, total: 41.3 s
+Wall time: 45.2 s
+```
+
+Additionally, this resulting GeoJSON is huge! Stringified, it would be almost 900 MB!
+
+```py
+import json
+len(json.dumps(geojson_like)) / 1024**2
+# 881.58
+```
+
+It wouldn't _necessarily_ be a problem to take up 900MB of memory if that matched the internal representation of either the producer or consumer. But since it usually doesn't, that's 900MB of _new memory_ that needs to be allocated just to share the data between two libraries (which, incidentally, might use the same compiled libraries under the hood).
+
+
+
+### x
+
+This is the problem with Geo Interface: while it's well-known and easy to implement, it's extremely inefficient.
+
+!!! test
+    The Geo Interface protocol requires serializing data to GeoJSON, a text-based format, and then parsing that text back into native data structures. This process is slow and can be a bottleneck for large datasets.
+
+
+### How does Arrow help?
+
+The ideal data protocol isn't just stable and easy to implement, it also needs to be **fast**.
+
+- Stable,
+- language-agnostic,
+- The key is to have the data protocol **match the underlying representation** of both the producer and consumer.
+- This is tricky because it means that the data layout needs to both be well-defined and easy to implement, but it also has to be fast enough for the fastest libraries and query engines to want to use it.
+
+
+## Arrow C Data Interface
+
+<!-- But even with the Arrow C Data Interface, there's still a problem: how do we share this data in Python without requiring both the producer and consumer to depend on `pyarrow`? -->
+
+
+## Arrow PyCapsule Interface
+
+Pyarrow is a highly useful library, but it also has drawbacks: chiefly that it's monolithic and has a very large install size, making it infeasible for some use cases like AWS Lambda.
+
+Instead of relying on pyarrow, we needed a decentralized way for data consumers and producers to _know_ that input data is Arrow-like and _be able_ to access it.
+
+
+
+## Coming back to our earlier example
+
+Consider the dataset in our prior example.
+
+
+### No memory overhead
+
+For libraries that use Arrow as their internal representation, there's no memory overhead to sharing data via the Arrow PyCapsule Interface because no new copies of the data need to be made. The consumer library can directly access the data in its Arrow format at the memory location described by the producer.
+
+
+
+### Old notes
+
+todo: pyspark (https://github.com/apache/spark/pull/46529)
+
+protocols are most useful when the protocol itself is efficient and binary, but also matches or is very close to the underlying representation on both sides of the transfer
+
+👋 The Arrow project recently created the [Arrow PyCapsule Interface](https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html), a new protocol for sharing Arrow data in Python. Among its goals is allowing Arrow data interchange without requiring the use of pyarrow, but I'm also excited about the prospect of an ecosystem that can share data only be the presence of dunder methods, where producer and consumer don't have to have prior knowledge of each other.
+
+important for users to consider what classes will materialize an Arrow stream or not. The user declares their intent by deciding between, say, a `RecordBatchReader` and a `Table`.
+
+not necessarily zero copy when libraries have a custom internal representation
+
+https://github.com/timkpaine/arrow-cpp-python-nocopy c++ example
+
+Include a checklist of which libraries have implemented it. checklist for import and export
+
+- pyarrow
+- nanoarrow
+- arro3
+- daft
+- datafusion
+- vegafusion
+- duckdb
+- polars
+- fastexcel
+- pandas
+- ibis
+- lance (https://github.com/lancedb/lance/issues/2630)
+
+some geospatial-specific arrow libraries:
+
+- geopandas
+- geoarrow-rs
+- lonboard
+- pyogrio
+- gdal
+- stac-geoparquet
+
+advice for authors on how to support pycapsule interface in their APIs. Check for **arrow_c_stream** on input objects.
+
+it's really exciting that these kind of small, tightly-integrated, domain-specific libraries can interop easily with other big libraries like polars, pandas, pyarrow, duckdb. It enables innovation by making it easier to integrate libraries without having knowledge of consumer and producer.
+
+Rust compute on lazy arrow iterators. As long as your compute is synchronous, this is actually (surprisiginly to me when it worked) rather straightforward! And then you can compose iterators too.
+
+So say I want to cast the schema of one Parquet file to another, I can use pyarrow.parquet.ParquetFile to construct a RecordBatchReader, then pass that reader to arro3.compute.cast, then pass it back to pyarrow.parquet.write_table. In this case, cast is relatively common, and you could do that in
+
+lazy arrow iterators from Rust can release the gil? Exercise for the reader.
+
+pro tips for authors:
+
+- Use a pyarrow.RecordBatchReader instead of an iterator of record batches. For one, this maintains the schema with the loop, so you don't have to peek into the iterator to find the schema of the stream. Also, this allows for exporting the reader at the C level, without touching Python.
+
+this means that all of these libraries that happen to be in my niche, geospatial, can interoperate with the Arrow data ecosystem at large
+
+e.g. in aws lambda, pyarrow blows your budget. pyarrow is massive and monolithic but because Arrow is ABI stable, you can rely on "dynamic linking" of data sharing at runtime between Python libraries.
+
+
+[^1]: Other examples of data protocols include the Python Buffer Protocol for sharing memory buffers and the Python Database API (DB-API) for database access.
